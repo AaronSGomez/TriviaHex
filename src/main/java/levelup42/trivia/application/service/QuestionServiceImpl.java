@@ -1,9 +1,8 @@
 package levelup42.trivia.application.service;
 
-
 import levelup42.trivia.domain.model.Question;
 import levelup42.trivia.domain.port.in.CreateQuestionUseCase;
-import levelup42.trivia.infraestructure.repository.QuestionRepository;
+import levelup42.trivia.domain.port.out.QuestionRepositoryPort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,30 +11,29 @@ import java.util.Optional;
 @Service
 public class QuestionServiceImpl implements CreateQuestionUseCase {
 
-    private final QuestionRepository repo;
+    private final QuestionRepositoryPort repoPort;
 
-    public QuestionServiceImpl(QuestionRepository repo) {
-        this.repo = repo;
+    public QuestionServiceImpl(QuestionRepositoryPort repoPort) {
+        this.repoPort = repoPort;
     }
-
 
     @Override
     public List<Question> findAll() {
-        return repo.findAll();
+        return repoPort.findAll();
     }
 
     @Override
     public Optional<Question> findById(Long id) {
-        return repo.findById(id);
+        return repoPort.findById(id);
     }
 
     @Override
     public Question save(Question q) {
-        return repo.save(q);
+        return repoPort.saveQuestion(q);
     }
 
     @Override
     public void delete(Long id) {
-        repo.deleteById(id);
+        repoPort.deleteQuestion(id);
     }
 }
