@@ -1,4 +1,9 @@
 package levelup42.trivia.domain.port.in;
 
-public class CreateSessionUseCase {
+
+import java.util.UUID;
+
+public interface CreateSessionUseCase {
+
+    UUID createSession(UUID playerId, String subject, int totalQuestions);
 }

@@ -1,4 +1,4 @@
-package levelup42.trivia.repository;
+package levelup42.trivia.infraestructure.repository;
 
 import levelup42.trivia.domain.model.Question;
 import org.springframework.data.jpa.repository.JpaRepository;

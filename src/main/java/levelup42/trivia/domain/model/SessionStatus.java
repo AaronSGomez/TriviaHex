@@ -1,6 +1,6 @@
 package levelup42.trivia.domain.model;
 
-public enum SesionStatus {
+public enum SessionStatus {
     IN_PROGRESS,
     FINISHED
 }
