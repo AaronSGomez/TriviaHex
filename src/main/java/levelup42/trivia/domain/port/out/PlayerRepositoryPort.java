@@ -8,4 +8,5 @@ import java.util.UUID;
 public interface PlayerRepositoryPort {
     Player save(Player player);
     Optional<Player> findById(UUID id);
+    void deletePlayer(UUID id);
 }

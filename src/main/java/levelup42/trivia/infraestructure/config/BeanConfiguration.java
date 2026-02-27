@@ -1,6 +1,6 @@
 package levelup42.trivia.infraestructure.config;
 
-import levelup42.trivia.application.service.CreateGameSessionService;
+import levelup42.trivia.application.service.gamesession.CreateGameSessionService;
 import levelup42.trivia.domain.port.in.CreateGameSessionUseCase;
 import levelup42.trivia.domain.port.out.GameSessionRepositoryPort;
 import levelup42.trivia.infraestructure.adapter.out.persistence.GameSessionJpaAdapter;

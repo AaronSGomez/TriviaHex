@@ -1,4 +1,4 @@
-package levelup42.trivia.application.service;
+package levelup42.trivia.application.service.gamesession;
 
 import levelup42.trivia.domain.model.GameSession;
 import levelup42.trivia.domain.port.in.CreateGameSessionUseCase;

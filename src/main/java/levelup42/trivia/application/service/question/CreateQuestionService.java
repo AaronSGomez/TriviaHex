@@ -1,4 +1,4 @@
-package levelup42.trivia.application.service;
+package levelup42.trivia.application.service.question;
 
 import levelup42.trivia.domain.model.Question;
 import levelup42.trivia.domain.port.in.CreateQuestionUseCase;
