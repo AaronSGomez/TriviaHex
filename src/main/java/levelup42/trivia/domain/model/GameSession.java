@@ -10,6 +10,7 @@ public class GameSession {
     private final String subjet;
 
     private int totalQuestions;
+    private int answeredQuestions;
     private int correctAnswers;
     private int score;
 
@@ -23,6 +24,7 @@ public class GameSession {
         this.playerId = playerId;
         this.subjet = subjet;
         this.totalQuestions = totalQuestions;
+        this.answeredQuestions = 0;
         this.correctAnswers = 0;
         this.score = 0;
         this.startedAt = Instant.now();
@@ -30,12 +32,13 @@ public class GameSession {
     }
 
     // Constructor completo para rehidratar desde la base de datos
-    public GameSession(UUID id, UUID playerId, String subjet, int totalQuestions,
+    public GameSession(UUID id, UUID playerId, String subjet, int totalQuestions, int answeredQuestions,
                        int correctAnswers, int score, Instant startedAt, Instant finishedAt, SessionStatus status) {
         this.id = id;
         this.playerId = playerId;
         this.subjet = subjet;
         this.totalQuestions = totalQuestions;
+        this.answeredQuestions = answeredQuestions;
         this.correctAnswers = correctAnswers;
         this.score = score;
         this.startedAt = startedAt;
@@ -46,10 +49,11 @@ public class GameSession {
     public void registerCorrectAnswer() {
         this.correctAnswers++;
         this.score+=100;
+        this.answeredQuestions++;
     }
 
     public void registerIncorrectAnswer() {
-        // no registra nada
+        this.answeredQuestions++;
     }
 
     public void finish(){
@@ -70,6 +74,8 @@ public class GameSession {
     public String getSubjet() {return subjet;}
 
     public int getTotalQuestions() {return totalQuestions;}
+
+    public int getAnsweredQuestions() {return answeredQuestions;}
 
     public int getCorrectAnswers() {return correctAnswers;}
 
