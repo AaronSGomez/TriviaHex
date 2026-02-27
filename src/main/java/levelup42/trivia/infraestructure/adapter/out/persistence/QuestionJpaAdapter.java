@@ -3,7 +3,7 @@ package levelup42.trivia.infraestructure.adapter.out.persistence;
 import levelup42.trivia.domain.model.Question;
 import levelup42.trivia.domain.port.out.QuestionRepositoryPort;
 import levelup42.trivia.infraestructure.adapter.out.persistence.entity.QuestionEntity;
-import levelup42.trivia.infraestructure.repository.QuestionRepository;
+import levelup42.trivia.infraestructure.adapter.out.persistence.repository.DataQuestionRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -11,11 +11,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
-public class JpaQuestionRepository implements QuestionRepositoryPort {
+public class QuestionJpaAdapter implements QuestionRepositoryPort {
 
-    private final QuestionRepository repository;
+    private final DataQuestionRepository repository;
 
-    public JpaQuestionRepository(QuestionRepository repository) {
+    public QuestionJpaAdapter(DataQuestionRepository repository) {
         this.repository = repository;
     }
 

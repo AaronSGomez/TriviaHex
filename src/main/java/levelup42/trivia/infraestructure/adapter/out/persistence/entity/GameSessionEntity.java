@@ -1,13 +1,22 @@
-package levelup42.trivia.domain.model;
+package levelup42.trivia.infraestructure.adapter.out.persistence.entity;
+
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import levelup42.trivia.domain.model.SessionStatus;
 
 import java.time.Instant;
 import java.util.UUID;
 
-public class GameSession {
+@Entity
+@Table(name= "gamesession")
+public class GameSessionEntity {
 
-    private final UUID id;
-    private final UUID playerId;
-    private final String subjet;
+    @Id
+    private UUID id;
+    private UUID playerId;
+    private String subjet;
 
     private int totalQuestions;
     private int correctAnswers;
@@ -18,7 +27,11 @@ public class GameSession {
 
     private SessionStatus status;
 
-    public GameSession(UUID id, UUID playerId, String subjet, int totalQuestions) {
+    // JPA requiere constructor por defecto
+    public GameSessionEntity() {
+    }
+
+    public GameSessionEntity(UUID id, UUID playerId, String subjet, int totalQuestions) {
         this.id = id;
         this.playerId = playerId;
         this.subjet = subjet;
@@ -29,9 +42,9 @@ public class GameSession {
         this.status = SessionStatus.IN_PROGRESS;
     }
 
-    // Constructor completo para rehidratar desde la base de datos
-    public GameSession(UUID id, UUID playerId, String subjet, int totalQuestions,
-                       int correctAnswers, int score, Instant startedAt, Instant finishedAt, SessionStatus status) {
+    // Constructor completo para el mapper
+    public GameSessionEntity(UUID id, UUID playerId, String subjet, int totalQuestions,
+                             int correctAnswers, int score, Instant startedAt, Instant finishedAt, SessionStatus status) {
         this.id = id;
         this.playerId = playerId;
         this.subjet = subjet;

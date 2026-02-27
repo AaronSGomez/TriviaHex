@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class QuestionServiceImpl implements CreateQuestionUseCase {
+public class CreateQuestionService implements CreateQuestionUseCase {
 
     private final QuestionRepositoryPort repoPort;
 
-    public QuestionServiceImpl(QuestionRepositoryPort repoPort) {
+    public CreateQuestionService(QuestionRepositoryPort repoPort) {
         this.repoPort = repoPort;
     }
 

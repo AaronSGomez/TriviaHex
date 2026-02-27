@@ -1,9 +1,9 @@
 package levelup42.trivia.infraestructure.config;
 
-import levelup42.trivia.application.service.CreateSessionService;
-import levelup42.trivia.domain.port.in.CreateSessionUseCase;
-import levelup42.trivia.domain.port.out.SessionRepositoryPort;
-import levelup42.trivia.infraestructure.adapter.out.persistence.InMemorySessionRepository;
+import levelup42.trivia.application.service.CreateGameSessionService;
+import levelup42.trivia.domain.port.in.CreateGameSessionUseCase;
+import levelup42.trivia.domain.port.out.GameSessionRepositoryPort;
+import levelup42.trivia.infraestructure.adapter.out.persistence.GameSessionJpaAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,13 +11,13 @@ import org.springframework.context.annotation.Configuration;
 public class BeanConfiguration {
 
     @Bean
-    public SessionRepositoryPort sessionRepositoryPort() {
-        return new InMemorySessionRepository();
+    public GameSessionRepositoryPort sessionRepositoryPort() {
+        return new GameSessionJpaAdapter();
     }
 
     @Bean
-    public CreateSessionUseCase createSessionUseCase(SessionRepositoryPort repository) {
-        return new CreateSessionService(repository);
+    public CreateGameSessionUseCase createSessionUseCase(GameSessionRepositoryPort repository) {
+        return new CreateGameSessionService(repository);
     }
 
 }

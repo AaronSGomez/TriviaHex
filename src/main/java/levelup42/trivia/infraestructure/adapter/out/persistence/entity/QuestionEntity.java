@@ -3,7 +3,7 @@ package levelup42.trivia.infraestructure.adapter.out.persistence.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "questions")
+@Table(name = "question")
 public class QuestionEntity {
 
     @Id

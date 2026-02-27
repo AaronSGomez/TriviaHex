@@ -1,16 +1,16 @@
 package levelup42.trivia.application.service;
 
 import levelup42.trivia.domain.model.GameSession;
-import levelup42.trivia.domain.port.in.CreateSessionUseCase;
-import levelup42.trivia.domain.port.out.SessionRepositoryPort;
+import levelup42.trivia.domain.port.in.CreateGameSessionUseCase;
+import levelup42.trivia.domain.port.out.GameSessionRepositoryPort;
 
 import java.util.UUID;
 
-public class CreateSessionService implements CreateSessionUseCase {
+public class CreateGameSessionService implements CreateGameSessionUseCase {
 
-    private final SessionRepositoryPort sessionRepository;
+    private final GameSessionRepositoryPort sessionRepository;
 
-    public CreateSessionService(SessionRepositoryPort sessionRepository){
+    public CreateGameSessionService(GameSessionRepositoryPort sessionRepository){
         this.sessionRepository = sessionRepository;
     }
 
