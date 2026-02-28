@@ -1,7 +1,7 @@
 package levelup42.trivia.application.service.player;
 
 import levelup42.trivia.domain.model.Player;
-import levelup42.trivia.domain.port.in.UpdatePlayerUseCase;
+import levelup42.trivia.domain.port.in.player.UpdatePlayerUseCase;
 import levelup42.trivia.domain.port.out.PlayerRepositoryPort;
 
 import java.util.UUID;

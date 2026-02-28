@@ -1,7 +1,7 @@
 package levelup42.trivia.infraestructure.adapter.in.rest;
 
 import levelup42.trivia.domain.model.Player;
-import levelup42.trivia.domain.port.in.CreatePlayerUseCase;
+import levelup42.trivia.domain.port.in.player.CreatePlayerUseCase;
 import levelup42.trivia.infraestructure.adapter.in.rest.dto.PlayerRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

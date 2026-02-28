@@ -1,10 +1,10 @@
-package levelup42.trivia.domain.port.in;
+package levelup42.trivia.domain.port.in.gamesession;
 
 import java.util.UUID;
 
-public interface AnswerQuestionUseCase {
+public interface SubmitAnswerUseCase {
     
-    AnswerResult answerQuestion(UUID sessionId, Long questionId, String selectedOption);
+    AnswerResult answerQuestion(UUID sessionId, Long questionId, String selectedOption, Integer timeElapsedSeconds);
     
     // DTO para el resultado
     public record AnswerResult(

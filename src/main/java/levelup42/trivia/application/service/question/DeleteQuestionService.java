@@ -1,6 +1,6 @@
 package levelup42.trivia.application.service.question;
 
-import levelup42.trivia.domain.port.in.DeleteQuestionUseCase;
+import levelup42.trivia.domain.port.in.question.DeleteQuestionUseCase;
 import levelup42.trivia.domain.port.out.QuestionRepositoryPort;
 import org.springframework.stereotype.Service;
 

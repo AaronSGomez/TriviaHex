@@ -1,10 +1,10 @@
 package levelup42.trivia.infraestructure.adapter.in.rest;
 
 import levelup42.trivia.domain.model.Question;
-import levelup42.trivia.domain.port.in.CreateQuestionUseCase;
-import levelup42.trivia.domain.port.in.DeleteQuestionUseCase;
-import levelup42.trivia.domain.port.in.UpdateQuestionUseCase;
-import levelup42.trivia.domain.port.in.GetQuestionUseCase;
+import levelup42.trivia.domain.port.in.question.CreateQuestionUseCase;
+import levelup42.trivia.domain.port.in.question.DeleteQuestionUseCase;
+import levelup42.trivia.domain.port.in.question.UpdateQuestionUseCase;
+import levelup42.trivia.domain.port.in.question.GetQuestionUseCase;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

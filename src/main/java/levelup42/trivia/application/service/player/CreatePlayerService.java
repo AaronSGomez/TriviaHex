@@ -1,7 +1,7 @@
 package levelup42.trivia.application.service.player;
 
 import levelup42.trivia.domain.model.Player;
-import levelup42.trivia.domain.port.in.CreatePlayerUseCase;
+import levelup42.trivia.domain.port.in.player.CreatePlayerUseCase;
 import levelup42.trivia.domain.port.out.PlayerRepositoryPort;
 import org.springframework.stereotype.Service;
 

@@ -1,7 +1,7 @@
 package levelup42.trivia.application.service.question;
 
 import levelup42.trivia.domain.model.Question;
-import levelup42.trivia.domain.port.in.GetQuestionUseCase;
+import levelup42.trivia.domain.port.in.question.GetQuestionUseCase;
 import levelup42.trivia.domain.port.out.QuestionRepositoryPort;
 import org.springframework.stereotype.Service;
 

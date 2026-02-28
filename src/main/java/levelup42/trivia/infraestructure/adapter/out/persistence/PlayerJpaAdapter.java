@@ -7,8 +7,10 @@ import levelup42.trivia.infraestructure.adapter.out.persistence.mapper.PlayerMap
 import levelup42.trivia.infraestructure.adapter.out.persistence.repository.DataPlayerRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 public class PlayerJpaAdapter implements PlayerRepositoryPort {
@@ -36,5 +38,12 @@ public class PlayerJpaAdapter implements PlayerRepositoryPort {
     @Override
     public void deletePlayer(UUID id) {
         jpaRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Player> findAll() {
+        return jpaRepository.findAll().stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
     }
 }

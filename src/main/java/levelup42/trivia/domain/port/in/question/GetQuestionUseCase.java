@@ -1,4 +1,4 @@
-package levelup42.trivia.domain.port.in;
+package levelup42.trivia.domain.port.in.question;
 
 import levelup42.trivia.domain.model.Question;
 

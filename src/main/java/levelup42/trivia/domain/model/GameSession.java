@@ -46,9 +46,9 @@ public class GameSession {
         this.status = status;
     }
 
-    public void registerCorrectAnswer() {
+    public void registerCorrectAnswer(int points) {
         this.correctAnswers++;
-        this.score+=100;
+        this.score+=points;
         this.answeredQuestions++;
     }
 
