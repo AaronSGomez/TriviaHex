@@ -22,7 +22,7 @@ public class PlayerJpaAdapter implements PlayerRepositoryPort {
     }
 
     @Override
-    public Player save(Player player) {
+    public Player savePlayer(Player player) {
         PlayerEntity entityToSave = mapper.toEntity(player);
         PlayerEntity savedEntity = jpaRepository.save(entityToSave);
         return mapper.toDomain(savedEntity);
@@ -31,5 +31,10 @@ public class PlayerJpaAdapter implements PlayerRepositoryPort {
     @Override
     public Optional<Player> findById(UUID id) {
         return jpaRepository.findById(id).map(mapper::toDomain);
+    }
+
+    @Override
+    public void deletePlayer(UUID id) {
+        jpaRepository.deleteById(id);
     }
 }

@@ -17,6 +17,15 @@ public class UpdatePlayerService implements UpdatePlayerUseCase {
     @Override
     public Player updatePlayer(UUID id, Player playerDetails) {
         Player existingPlayer = playerRepositoryPort.findById(id)
-                .orElseThrow(()-> new IllegalArgumentException("Player with id {id} not found",id));
+                .orElseThrow(()-> new IllegalArgumentException("Player with id: ["+id+"] not found"));
+
+        // Create a new Player
+        Player updatedPlayer= new Player(
+                existingPlayer.getId(),
+                existingPlayer.getName(),
+                existingPlayer.getMail()
+        );
+
+        return playerRepositoryPort.savePlayer(updatedPlayer);
     }
 }
