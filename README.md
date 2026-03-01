@@ -1,89 +1,403 @@
-# Guía Paso a Paso: Arquitectura Hexagonal con el Jugador (Player)
+# 🧠 Trivia Quiz Backend - Full Architecture
 
-¡Tienes toda la razón! Ver el código aparecer de repente puede parecer magia y no ayuda a interiorizar los conceptos. La Arquitectura Hexagonal (o de "Puertos y Adaptadores") cambia nuestra forma habitual de pensar, porque **invertimos las dependencias**.
+![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-green?logo=springboot)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker)
+![Nginx](https://img.shields.io/badge/Nginx-Load_Balancer-009639?logo=nginx)
 
-En una aplicación tradicional (Controlador -> Servicio -> Repositorio), el Servicio depende de la Base de Datos. En la Arquitectura Hexagonal, el Dominio (y el Servicio) son los "reyes", y es la Base de Datos la que debe adaptarse a ellos.
-
-Aquí te explico **exactamente qué hicimos, archivo por archivo, y POR QUÉ lo hicimos**.
-
----
-
-## 🏗️ 1. El Núcleo: El Dominio (Lo que ya tenías)
-**Archivo:** `domain/model/Player.java`
-
-Este es el corazón de tu aplicación. Representa un Jugador con sus reglas de negocio puras.
-**¿Por qué está así?** Fíjate que en este archivo **no hay dependencias de Spring Boot ni de JPA** (no hay `@Entity`, no hay `@Column`). Si mañana decides cambiar Spring Boot por otro framework, tu entidad `Player` no cambia en absoluto.
+Proyecto backend robusto para un sistema de **Trivia Quiz**. Diseñado para la preparación de exámenes y competición multijugador, optimizado para despliegue en **Raspberry Pi 5** mediante contenedores Docker con balanceo de carga.
 
 ---
 
-## 🚪 2. Las Puertas de Comunicación: Los Puertos (Ports)
-Para que nuestro `Player` sea útil, tiene que comunicarse con el mundo exterior (recibir llamadas de la web y guardar datos en la base de datos). Pero como nuestro dominio es "puro" y no quiere depender de nadie, crea **Interfaces** (contratos). Es como decir: *"Yo no sé cómo funciona una base de datos, pero si quieres trabajar conmigo, debes cumplir este contrato"*.
+## 📋 Tabla de Contenidos
 
-### A. Puerto de Entrada (Inbound Port) - Lo que el dominio ofrece
-**Archivo:** `domain/port/in/CreatePlayerUseCase.java`
-- **¿Qué hace?** Define qué acciones (Casos de Uso) permite hacer el dominio desde el exterior. En este caso, crear un jugador.
-- **¿Por qué?** Porque cuando el controlador web quiera crear un jugador, no llamará directamente al código que lo crea, llamará a esta interfaz. Así, la web no sabe cómo se hace por debajo.
-
-### B. Puerto de Salida (Outbound Port) - Lo que el dominio necesita
-**Archivo:** `domain/port/out/PlayerRepositoryPort.java`
-- **¿Qué hace?** Le dice al exterior qué necesita de él. Tiene métodos como `save()` y `findById()`.
-- **¿Por qué?** El dominio necesita guardar jugadores, pero **se niega a usar PostgreSQL directamente**. Así que pide que alguien de afuera implemente esta interfaz y haga el trabajo sucio de base de datos.
+1. [Arquitectura General](#-arquitectura-general)
+2. [Modelo de Dominio](#-modelo-de-dominio)
+3. [API REST](#-api-rest)
+4. [Implementación (Código Java)](#-implementación-código-java)
+5. [Despliegue (Docker & Nginx)](#-despliegue-docker--nginx)
 
 ---
 
-## ⚙️ 3. El Orquestador: Aplicación (Service)
-**Archivo:** `application/service/CreatePlayerService.java`
+## 🏗️ Arquitectura General
 
-- **¿Qué hace?** Es la implementación de nuestro puerto de entrada (`CreatePlayerUseCase`). Contiene la lógica orquestada: recibe los datos, quizás valida si el mail ya existe (lógica de negocio), y luego le pide al Puerto de Salida (`PlayerRepositoryPort`) que guarde el jugador.
-- **¿Por qué?** Fíjate que el servicio recibe la interfaz `PlayerRepositoryPort` en su constructor, no recibe un repositorio de JPA. Esto se llama **Inyección de Dependencias**. El servicio no sabe si está guardando en PostgreSQL, en un archivo de texto o en la nube; él solo llama a `port.save()`.
+El sistema se compone de un cluster de aplicaciones Spring Boot stateless, gobernadas por un balanceador de carga Nginx y respaldadas por una base de datos PostgreSQL.
+
+### Componentes
+* **Backend:** Spring Boot (Stateless API).
+* **Base de Datos:** PostgreSQL.
+* **Balanceador:** Nginx (Round Robin).
+* **Escalado:** 3 réplicas activas del backend.
+
+### Diagrama de Infraestructura
+
+```mermaid
+graph TD
+    User((Internet / Dominio)) -->|HTTP:80| Nginx[Nginx Load Balancer]
+    
+    subgraph Docker Network
+        Nginx --> B1[Backend #1]
+        Nginx --> B2[Backend #2]
+        Nginx --> B3[Backend #3]
+        
+        B1 --> DB[(PostgreSQL)]
+        B2 --> DB
+        B3 --> DB
+    end
+```
+
+## 🌳 Árbol de Clases y Paquetes Principales
+
+```text
+levelup42.trivia/
+├── TriviaApplication.java
+├── domain/
+│   ├── model/
+│   │   ├── GameSession.java
+│   │   ├── Player.java
+│   │   ├── Question.java
+│   │   └── SessionStatus.java
+│   ├── port/
+│   │   ├── in/
+│   │   │   ├── gamesession/
+│   │   │   ├── player/
+│   │   │   └── question/
+│   │   └── out/
+│   │       ├── GameSessionRepositoryPort.java
+│   │       ├── PlayerRepositoryPort.java
+│   │       └── QuestionRepositoryPort.java
+│   └── exception/
+│
+├── application/
+│   └── service/
+│       ├── gamesession/
+│       ├── player/
+│       └── question/
+│
+└── infraestructure/
+    ├── adapter/
+    │   ├── in/rest/
+    │   │   ├── GameSessionController.java
+    │   │   ├── PlayerController.java
+    │   │   ├── QuestionController.java
+    │   │   └── dto/
+    │   │
+    │   └── out/persistence/
+    │       ├── GameSessionJpaAdapter.java
+    │       ├── PlayerJpaAdapter.java
+    │       ├── QuestionJpaAdapter.java
+    │       ├── entity/
+    │       └── repository/
+    │
+    ├── config/
+    │   ├── DebugExceptionHandler.java
+    │   └── OpenApiConfig.java
+    │
+    └── mapper/
+        ├── GameSessionMapper.java
+        ├── PlayerMapper.java
+        └── QuestionMapper.java
+```
 
 ---
 
-## 🔌 4. El Trabajo Sucio (PostgreSQL): Adaptadores de Salida (Outbound Adapters)
-Aquí es donde entra Spring Boot y la tecnología real. Tenemos que "adaptar" la Base de Datos para que cumpla el contrato (`PlayerRepositoryPort`) que el Dominio exigió.
+## 📊 Modelo de Dominio
 
-### A. La Tabla de la Base de Datos
-**Archivo:** `infrastructure/adapter/out/persistence/entity/PlayerEntity.java`
-- **¿Qué hace?** Esta sí tiene las anotaciones `@Entity` y `@Table`. Es la representación técnica de la tabla `players`.
-- **¿Por qué?** Separamos el modelo de la DB (`PlayerEntity`) del modelo de negocio (`Player`). Así, si añades una columna técnica en la DB (ej. un contador de accesos), no manchas tu `Player` puro.
+Estructura de datos central para gestionar preguntas, jugadores y el estado de cada sesión de juego.
 
-### B. La Magia de Spring Data
-**Archivo:** `infrastructure/adapter/out/persistence/repository/SpringDataPlayerRepository.java`
-- **¿Qué hace?** Es la interfaz clásica de Spring que hereda de `JpaRepository` para hacer los `INSERT` y `SELECT`.
-
-### C. El Traductor (Mapper)
-**Archivo:** `infrastructure/adapter/out/persistence/mapper/PlayerMapper.java`
-- **¿Qué hace?** Convierte el `Player` del Dominio en un `PlayerEntity` para guardarlo, y cuando lee de la DB, convierte el `PlayerEntity` de vuelta a un `Player` puro del Dominio.
-- **¿Por qué?** Porque el repositorio de Spring solo entiende de `Entities`, y nuestro Servicio solo habla en términos de `Player` puros. Necesitamos a alguien que traduzca.
-
-### D. El Adaptador Principal (¡La pieza clave!)
-**Archivo:** `infrastructure/adapter/out/persistence/PlayerJpaAdapter.java`
-- **¿Qué hace?** Esta es la clase que dice *"Yo firmo el contrato"*. **Implementa el `PlayerRepositoryPort`**.
-- **¿Cómo funciona?** Cuando el servicio llama a `save()`, esta clase atrapa la llamada, usa el Translator (Mapper) para pasar de `Player` a `PlayerEntity`, lo guarda con el `SpringDataPlayerRepository`, y devuelve el resultado de nuevo como `Player`.
+```mermaid
+classDiagram
+    class Question {
+        +Long id
+        +String statement
+        +String options (A-D)
+        +String correctOption
+        +String explanation
+        +String subject
+        +String topic
+        +String difficulty
+        +boolean active
+    }
+    class Player {
+        +UUID id
+        +String name
+        +String mail
+        +Instant createdAt
+    }
+    class GameSession {
+        +UUID id
+        +UUID playerId
+        +String subjet
+        +int totalQuestions
+        +int answeredQuestions
+        +int correctAnswers
+        +int score
+        +Instant startedAt
+        +Instant finishedAt
+        +SessionStatus status
+        +getGrade() double
+        +isPassed() boolean
+    }
+    class SessionStatus {
+        <<enumeration>>
+        IN_PROGRESS
+        FINISHED
+    }
+    
+    Player "1" --> "*" GameSession : plays
+    GameSession "1" --> "1" SessionStatus : has
+```
 
 ---
 
-## 🌐 5. La Interfaz con el Usuario (REST): Adaptadores de Entrada (Inbound Adapters)
-Alguien tiene que iniciar todo este flujo. Necesitamos a alguien que atienda las peticiones de Internet (Postman, Frontend).
+## 🌐 API REST
 
-### A. El Objeto de Petición (DTO)
-**Archivo:** `infrastructure/adapter/in/rest/dto/PlayerRequest.java`
-- **¿Qué hace?** Modela exactamente el JSON que el frontend enviará (solo `name` y `mail`).
-- **¿Por qué?** Porque la web no necesita enviar el `id` o la fecha de creación `createdAt`, eso lo generamos nosotros.
+Path base: `/api/v1`
 
-### B. El Controlador Web
-**Archivo:** `infrastructure/adapter/in/rest/PlayerController.java`
-- **¿Qué hace?** Escucha en la ruta `@PostMapping("/api/v1/players")`. Cuando llega un JSON, toma los datos, instancia (construye) un `Player` de dominio básico y llama a nuestro Puerto de Entrada (`CreatePlayerUseCase.createPlayer()`).
-- **¿Por qué no llama a la base de datos?** Porque la Arquitectura Hexagonal prohíbe que el Controlador hable con la Base de datos. Su única forma de entrar "al centro del hexágono" es a través del Puerto.
+### 📝 Preguntas (Questions)
+| Método | Endpoint | Descripción |
+| :--- | :--- | :--- |
+| `GET` | `/question` | Listar todas las preguntas |
+| `POST` | `/question` | Crear nueva pregunta |
+| `PUT` | `/question/{id}` | Actualizar pregunta |
+| `DELETE` | `/question/{id}` | Eliminar pregunta |
+
+### 👤 Jugadores (Players)
+| Método | Endpoint | Descripción |
+| :--- | :--- | :--- |
+| `POST` | `/player` | Registrar jugador |
+| `GET` | `/player/{id}` | Obtener perfil de un jugador |
+| `PUT` | `/player/{id}` | Actualizar perfil de un jugador |
+| `DELETE` | `/player/{id}` | Eliminar un jugador |
+
+### 🎮 Sesiones de Juego (Game Flow)
+| Método | Endpoint | Descripción |
+| :--- | :--- | :--- |
+| `POST` | `/session` | Iniciar nueva sesión de juego |
+| `GET` | `/session/{sessionId}` | Obtener detalles y estado (incluye nota) |
+| `GET` | `/session/{sessionId}/next-question` | Obtener siguiente pregunta (oculta respuesta correcta) |
+| `POST` | `/session/{sessionId}/answer` | Enviar una respuesta y evaluar acierto |
+| `POST` | `/session/{sessionId}/finish` | Finalizar explícitamente una sesión en curso |
+| `GET` | `/session/player/{playerId}` | Historial de sesiones jugadas por un jugador |
+| `GET` | `/session/leaderboard` | Clasificación global de sesiones finalizadas |
 
 ---
 
-## 🗺️ Resumen de una Petición (El Viaje del Dato)
+## 💻 Implementación de Arquitectura Hexagonal (Código Java)
 
-1. El Controlador (`PlayerController`) recibe la petición Postman (Adaptador Entrada).
-2. El Controlador pasa el dato por el Puerto de Entrada (`CreatePlayerUseCase`).
-3. El Servicio (`CreatePlayerService`) hace su cálculo o lógica.
-4. El Servicio pide guardar el dato a través del Puerto de Salida (`PlayerRepositoryPort`).
-5. El Adaptador JPA (`PlayerJpaAdapter`) escucha esa petición, traduce el dato y lo guarda en PostgreSQL usando Spring Data.
+### 4.1. Main Application
+```java
+package levelup42.trivia;
 
-**Todo este lío de archivos tiene un solo propósito fundamental:** Si mañana decides cambiar PostgreSQL por MongoDB, **solo** borras y rehaces los archivos de la carpeta `adapter/out/persistence`. Todo tu Dominio, tu Servicio y tus Controladores seguirán intactos sin que tengas que cambiarles ni una sola línea de código. Eso es la verdadera magia de la arquitectura hexagonal.
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class TriviaApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(TriviaApplication.class, args);
+    }
+}
+```
+
+### 4.2. Dominio y Casos de Uso (Núcleo)
+
+<details>
+<summary><b>Ver código de Dominio</b></summary>
+
+**GameSession.java** (Sin dependencias externas, pura lógica de negocio)
+```java
+package levelup42.trivia.domain.model;
+
+public class GameSession {
+    private final UUID id;
+    private final UUID playerId;
+    private final String subjet;
+    private int totalQuestions, answeredQuestions, correctAnswers, score;
+    private SessionStatus status;
+
+    public void registerCorrectAnswer(int points) {
+        this.correctAnswers++;
+        this.score += points;
+        this.answeredQuestions++;
+    }
+
+    public void registerIncorrectAnswer() {
+        this.answeredQuestions++;
+    }
+
+    public double getGrade() {
+        if (totalQuestions == 0) return 0.0;
+        double questionValue = 10.0 / totalQuestions;
+        double penaltyValue = questionValue / 3.0; // Resta 1/3 por fallo
+        int incorrectAnswers = answeredQuestions - correctAnswers;
+        double rawGrade = (correctAnswers * questionValue) - (incorrectAnswers * penaltyValue);
+        return Math.max(0.0, Math.min(10.0, rawGrade));
+    }
+    
+    public boolean isPassed() {
+        return getGrade() >= 5.0;
+    }
+    // ...
+}
+```
+
+**GameSessionRepositoryPort.java** (Puerto de salida)
+```java
+package levelup42.trivia.domain.port.out;
+
+import levelup42.trivia.domain.model.GameSession;
+import java.util.Optional;
+import java.util.UUID;
+
+public interface GameSessionRepositoryPort {
+    GameSession save(GameSession gameSession);
+    Optional<GameSession> findById(UUID id);
+    // ...
+}
+```
+
+**SubmitAnswerUseCase.java** (Puerto de entrada)
+```java
+package levelup42.trivia.domain.port.in.gamesession;
+
+import java.util.UUID;
+
+public interface SubmitAnswerUseCase {
+    boolean execute(UUID sessionId, Long questionId, String selectedOption);
+}
+```
+</details>
+
+### 4.3. Servicios (Capa de Aplicación)
+
+<details>
+<summary><b>Ver SubmitAnswerService.java</b></summary>
+
+```java
+package levelup42.trivia.application.service.gamesession;
+
+import levelup42.trivia.domain.port.in.gamesession.SubmitAnswerUseCase;
+import org.springframework.stereotype.Service;
+
+@Service
+public class SubmitAnswerService implements SubmitAnswerUseCase {
+    private final GameSessionRepositoryPort sessionRepository;
+    private final QuestionRepositoryPort questionRepository;
+    // ... dependencies via constructor
+    
+    @Override
+    public boolean execute(UUID sessionId, Long questionId, String option) {
+        GameSession session = sessionRepository.findById(sessionId).orElseThrow();
+        Question question = questionRepository.findById(questionId).orElseThrow();
+        
+        boolean isCorrect = question.getCorrectOption().equals(option);
+        if (isCorrect) session.registerCorrectAnswer(10);
+        else session.registerIncorrectAnswer();
+        
+        sessionRepository.save(session);
+        return isCorrect;
+    }
+}
+```
+</details>
+
+---
+
+## 🐳 Despliegue (Docker & Nginx)
+
+Configuración para orquestar la base de datos, 3 réplicas del backend y el balanceador de carga.
+
+### docker-compose.yml
+
+```yaml
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: quizdb
+      POSTGRES_USER: quizuser
+      POSTGRES_PASSWORD: quizpass
+    volumes:
+      - quiz-data:/var/lib/postgresql/data
+    networks:
+      - quiz-net
+
+  # Replicas del Backend
+  quiz-backend-1:
+    build: ./backend
+    environment: &backend_env
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/quizdb
+      SPRING_DATASOURCE_USERNAME: quizuser
+      SPRING_DATASOURCE_PASSWORD: quizpass
+    networks:
+      - quiz-net
+
+  quiz-backend-2:
+    build: ./backend
+    environment: *backend_env
+    networks:
+      - quiz-net
+
+  quiz-backend-3:
+    build: ./backend
+    environment: *backend_env
+    networks:
+      - quiz-net
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    networks:
+      - quiz-net
+
+networks:
+  quiz-net:
+
+volumes:
+  quiz-data:
+```
+
+### Configuración Nginx (`nginx.conf`)
+
+Define el grupo de servidores (upstream) para el balanceo de carga.
+
+```nginx
+events {}
+
+http {
+    upstream quiz_backend {
+        server quiz-backend-1:8080;
+        server quiz-backend-2:8080;
+        server quiz-backend-3:8080;
+    }
+
+    server {
+        listen 80;
+        
+        location / {
+            proxy_pass http://quiz_backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+    }
+}
+```
+
+### Estructura de Archivos
+
+```text
+quiz-trivia-backend/
+├── backend/
+│   ├── Dockerfile
+│   ├── pom.xml
+│   └── src/main/java/com/example/quiz/...
+├── nginx/
+│   ├── Dockerfile
+│   └── nginx.conf
+└── docker-compose.yml
+```
