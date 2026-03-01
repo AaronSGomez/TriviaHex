@@ -5,6 +5,8 @@ import levelup42.trivia.domain.port.in.gamesession.StartGameSessionUseCase;
 import levelup42.trivia.domain.port.in.gamesession.SubmitAnswerUseCase;
 import levelup42.trivia.domain.port.in.gamesession.FinishGameSessionUseCase;
 import levelup42.trivia.domain.port.in.gamesession.GetGameSessionUseCase;
+import levelup42.trivia.infraestructure.adapter.in.rest.dto.GameSessionRequest;
+import levelup42.trivia.infraestructure.adapter.in.rest.dto.SubmitAnswerRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,19 +29,18 @@ public class GameSessionController {
     }
 
     @PostMapping
-    public GameSession create(@RequestParam UUID playerID,
-                       @RequestParam String subjet,
-                       @RequestParam int totalQuestions) {
-        return startGameSessionUseCase.createSession(playerID,subjet,totalQuestions);
+    public GameSession create(@RequestBody GameSessionRequest gameSessionRequest) {
+        return startGameSessionUseCase.createSession(
+                gameSessionRequest.getPlayerId(),
+                gameSessionRequest.getSubjet(),
+                gameSessionRequest.getTotalQuestions());
     }
 
     @PostMapping("/{sessionId}/answer")
-    public SubmitAnswerUseCase.AnswerResult answerQuestion(
-            @PathVariable UUID sessionId,
-            @RequestParam Long questionId,
-            @RequestParam String selectedOption,
-            @RequestParam(required = false) Integer timeElapsedSeconds) {
-        return submitAnswerUseCase.answerQuestion(sessionId, questionId, selectedOption, timeElapsedSeconds);
+    public SubmitAnswerUseCase.AnswerResult answerQuestion(@PathVariable UUID sessionId,
+            @RequestBody SubmitAnswerRequest submitAnswerRequest) {
+        return submitAnswerUseCase.answerQuestion(sessionId,
+                submitAnswerRequest.getQuestionId(), submitAnswerRequest.getSelectedOption(), submitAnswerRequest.getTimeElapsedSeconds());
     }
 
     @PostMapping("/{sessionId}/finish")

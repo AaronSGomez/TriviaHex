@@ -5,6 +5,7 @@ import levelup42.trivia.domain.port.in.question.CreateQuestionUseCase;
 import levelup42.trivia.domain.port.in.question.DeleteQuestionUseCase;
 import levelup42.trivia.domain.port.in.question.UpdateQuestionUseCase;
 import levelup42.trivia.domain.port.in.question.GetQuestionUseCase;
+import levelup42.trivia.infraestructure.adapter.in.rest.dto.QuestionRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,14 +31,42 @@ public class QuestionController {
     }
 
     @PostMapping
-    public ResponseEntity<Question> createQuestion(@RequestBody Question question) {
-        Question created = createQuestionUseCase.save(question);
+    public ResponseEntity<Question> createQuestion(@RequestBody QuestionRequest request) {
+        Question questionToCreate = new Question(
+                null,
+                request.getStatement(),
+                request.getOptionA(),
+                request.getOptionB(),
+                request.getOptionC(),
+                request.getOptionD(),
+                request.getCorrectOption(),
+                request.getExplanation(),
+                request.getSubject(),
+                request.getTopic(),
+                request.getDifficulty(),
+                request.isActive()
+        );
+        Question created = createQuestionUseCase.save(questionToCreate);
         return ResponseEntity.ok(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Question> updateQuestion(@PathVariable Long id, @RequestBody Question question) {
-        Question updated = updateQuestionUseCase.updateQuestion(id, question);
+    public ResponseEntity<Question> updateQuestion(@PathVariable Long id, @RequestBody QuestionRequest request) {
+        Question questionToUpdate = new Question(
+                id,
+                request.getStatement(),
+                request.getOptionA(),
+                request.getOptionB(),
+                request.getOptionC(),
+                request.getOptionD(),
+                request.getCorrectOption(),
+                request.getExplanation(),
+                request.getSubject(),
+                request.getTopic(),
+                request.getDifficulty(),
+                request.isActive()
+        );
+        Question updated = updateQuestionUseCase.updateQuestion(id, questionToUpdate);
         return ResponseEntity.ok(updated);
     }
 
