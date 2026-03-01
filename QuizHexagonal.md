@@ -47,57 +47,64 @@ graph TD
     end
 ```
 
-## Tree 
-```com.levelup.trivia
+## 🌳 Árbol de Clases y Paquetes Principales
 
-domain
-  model
-    Player.java
-    Question.java
-    GameSession.java
-    AnswerLog.java
-  port
-    in
-      CreateSessionUseCase.java
-      AnswerQuestionUseCase.java
-      FinishSessionUseCase.java
-      GetRankingUseCase.java
-    out
-      PlayerRepositoryPort.java
-      QuestionRepositoryPort.java
-      SessionRepositoryPort.java
-      AnswerLogRepositoryPort.java
-
-application
-  service
-    CreateSessionService.java
-    AnswerQuestionService.java
-    FinishSessionService.java
-    GetRankingService.java
-
-infrastructure
-  adapter
-    in
-      rest
-        PlayerController.java
-        QuestionController.java
-        SessionController.java
-    out
-      persistence
-        entity
-        mapper
-        repository
-  config
-
-TriviaApplication.java
-
+```text
+levelup42.trivia/
+├── TriviaApplication.java
+├── domain/
+│   ├── model/
+│   │   ├── GameSession.java
+│   │   ├── Player.java
+│   │   ├── Question.java
+│   │   └── SessionStatus.java
+│   ├── port/
+│   │   ├── in/
+│   │   │   ├── gamesession/
+│   │   │   ├── player/
+│   │   │   └── question/
+│   │   └── out/
+│   │       ├── GameSessionRepositoryPort.java
+│   │       ├── PlayerRepositoryPort.java
+│   │       └── QuestionRepositoryPort.java
+│   └── exception/
+│
+├── application/
+│   └── service/
+│       ├── gamesession/
+│       ├── player/
+│       └── question/
+│
+└── infraestructure/
+    ├── adapter/
+    │   ├── in/rest/
+    │   │   ├── GameSessionController.java
+    │   │   ├── PlayerController.java
+    │   │   ├── QuestionController.java
+    │   │   └── dto/
+    │   │
+    │   └── out/persistence/
+    │       ├── GameSessionJpaAdapter.java
+    │       ├── PlayerJpaAdapter.java
+    │       ├── QuestionJpaAdapter.java
+    │       ├── entity/
+    │       └── repository/
+    │
+    ├── config/
+    │   ├── DebugExceptionHandler.java
+    │   └── OpenApiConfig.java
+    │
+    └── mapper/
+        ├── GameSessionMapper.java
+        ├── PlayerMapper.java
+        └── QuestionMapper.java
 ```
 
 ---
 
 ## 📊 Modelo de Dominio
 
-Estructura de datos relacional para gestionar preguntas, jugadores y sesiones de juego.
+Estructura de datos central para gestionar preguntas, jugadores y el estado de cada sesión de juego.
 
 ```mermaid
 classDiagram
@@ -108,32 +115,38 @@ classDiagram
         +String correctOption
         +String explanation
         +String subject
+        +String topic
         +String difficulty
+        +boolean active
     }
     class Player {
-        +Long id
-        +String nickname
-        +String email
+        +UUID id
+        +String name
+        +String mail
         +Instant createdAt
     }
     class GameSession {
-        +Long id
-        +Long playerId
-        +String subject
+        +UUID id
+        +UUID playerId
+        +String subjet
+        +int totalQuestions
+        +int answeredQuestions
+        +int correctAnswers
         +int score
         +Instant startedAt
+        +Instant finishedAt
+        +SessionStatus status
+        +getGrade() double
+        +isPassed() boolean
     }
-    class AnswerLog {
-        +Long id
-        +Long sessionId
-        +Long questionId
-        +boolean correct
-        +long answerTimeMs
+    class SessionStatus {
+        <<enumeration>>
+        IN_PROGRESS
+        FINISHED
     }
     
     Player "1" --> "*" GameSession : plays
-    GameSession "1" --> "*" AnswerLog : contains
-    Question "1" --> "*" AnswerLog : refers
+    GameSession "1" --> "1" SessionStatus : has
 ```
 
 ---
@@ -145,160 +158,146 @@ Path base: `/api/v1`
 ### 📝 Preguntas (Questions)
 | Método | Endpoint | Descripción |
 | :--- | :--- | :--- |
-| `GET` | `/questions` | Listar todas las preguntas |
-| `POST` | `/questions` | Crear nueva pregunta |
-| `PUT` | `/questions/{id}` | Actualizar pregunta |
-| `DELETE` | `/questions/{id}` | Eliminar pregunta |
+| `GET` | `/question` | Listar todas las preguntas |
+| `POST` | `/question` | Crear nueva pregunta |
+| `PUT` | `/question/{id}` | Actualizar pregunta |
+| `DELETE` | `/question/{id}` | Eliminar pregunta |
 
 ### 👤 Jugadores (Players)
 | Método | Endpoint | Descripción |
 | :--- | :--- | :--- |
-| `POST` | `/players` | Registrar jugador |
-| `GET` | `/players/{id}` | Obtener perfil |
+| `POST` | `/player` | Registrar jugador |
+| `GET` | `/player/{id}` | Obtener perfil de un jugador |
+| `PUT` | `/player/{id}` | Actualizar perfil de un jugador |
+| `DELETE` | `/player/{id}` | Eliminar un jugador |
 
 ### 🎮 Sesiones de Juego (Game Flow)
 | Método | Endpoint | Descripción |
 | :--- | :--- | :--- |
-| `POST` | `/sessions` | Iniciar sesión |
-| `GET` | `/sessions/{id}` | Obtener estado de sesión |
-| `GET` | `/sessions/{id}/next-question` | Obtener siguiente pregunta |
-| `POST` | `/sessions/{id}/answer` | Enviar respuesta |
-| `POST` | `/sessions/{id}/finish` | Finalizar juego |
-
-### 🏆 Rankings
-| Método | Endpoint | Descripción |
-| :--- | :--- | :--- |
-| `GET` | `/ranking/global` | Top puntuaciones global |
-| `GET` | `/ranking/subject/{subject}` | Top por asignatura |
+| `POST` | `/session` | Iniciar nueva sesión de juego |
+| `GET` | `/session/{sessionId}` | Obtener detalles y estado (incluye nota) |
+| `GET` | `/session/{sessionId}/next-question` | Obtener siguiente pregunta (oculta respuesta correcta) |
+| `POST` | `/session/{sessionId}/answer` | Enviar una respuesta y evaluar acierto |
+| `POST` | `/session/{sessionId}/finish` | Finalizar explícitamente una sesión en curso |
+| `GET` | `/session/player/{playerId}` | Historial de sesiones jugadas por un jugador |
+| `GET` | `/session/leaderboard` | Clasificación global de sesiones finalizadas |
 
 ---
 
-## 💻 Implementación (Código Java)
+## 💻 Implementación de Arquitectura Hexagonal (Código Java)
 
 ### 4.1. Main Application
 ```java
-package com.example.quiz;
+package levelup42.trivia;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class QuizApplication {
+public class TriviaApplication {
     public static void main(String[] args) {
-        SpringApplication.run(QuizApplication.class, args);
+        SpringApplication.run(TriviaApplication.class, args);
     }
 }
 ```
 
-### 4.2. Entidades (JPA)
+### 4.2. Dominio y Casos de Uso (Núcleo)
 
 <details>
-<summary><b>Ver código de Entidades</b></summary>
+<summary><b>Ver código de Dominio</b></summary>
 
-**Question.java**
+**GameSession.java** (Sin dependencias externas, pura lógica de negocio)
 ```java
-@Entity
-public class Question {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String statement;
-    private String optionA, optionB, optionC, optionD;
-    private String correctOption;
-    @Column(length = 2000)
-    private String explanation;
-    private String subject, topic, difficulty;
-    private boolean active = true;
-    // getters & setters
-}
-```
+package levelup42.trivia.domain.model;
 
-**Player.java**
-```java
-@Entity
-public class Player {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(nullable = false, unique = true)
-    private String nickname;
-    private String email;
-    private Instant createdAt = Instant.now();
-    // getters & setters
-}
-```
-
-**GameSession.java**
-```java
-@Entity
 public class GameSession {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long playerId;
-    private String subject, mode;
-    private int totalQuestions, correctAnswers, score;
-    private Instant startedAt = Instant.now();
-    private Instant finishedAt;
-    // getters & setters
+    private final UUID id;
+    private final UUID playerId;
+    private final String subjet;
+    private int totalQuestions, answeredQuestions, correctAnswers, score;
+    private SessionStatus status;
+
+    public void registerCorrectAnswer(int points) {
+        this.correctAnswers++;
+        this.score += points;
+        this.answeredQuestions++;
+    }
+
+    public void registerIncorrectAnswer() {
+        this.answeredQuestions++;
+    }
+
+    public double getGrade() {
+        if (totalQuestions == 0) return 0.0;
+        double questionValue = 10.0 / totalQuestions;
+        double penaltyValue = questionValue / 3.0; // Resta 1/3 por fallo
+        int incorrectAnswers = answeredQuestions - correctAnswers;
+        double rawGrade = (correctAnswers * questionValue) - (incorrectAnswers * penaltyValue);
+        return Math.max(0.0, Math.min(10.0, rawGrade));
+    }
+    
+    public boolean isPassed() {
+        return getGrade() >= 5.0;
+    }
+    // ...
 }
 ```
 
-**AnswerLog.java**
+**GameSessionRepositoryPort.java** (Puerto de salida)
 ```java
-@Entity
-public class AnswerLog {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long sessionId, questionId;
-    private String selectedOption;
-    private boolean correct;
-    private long answerTimeMs;
-    private Instant answeredAt = Instant.now();
-    // getters & setters
+package levelup42.trivia.domain.port.out;
+
+import levelup42.trivia.domain.model.GameSession;
+import java.util.Optional;
+import java.util.UUID;
+
+public interface GameSessionRepositoryPort {
+    GameSession save(GameSession gameSession);
+    Optional<GameSession> findById(UUID id);
+    // ...
+}
+```
+
+**SubmitAnswerUseCase.java** (Puerto de entrada)
+```java
+package levelup42.trivia.domain.port.in.gamesession;
+
+import java.util.UUID;
+
+public interface SubmitAnswerUseCase {
+    boolean execute(UUID sessionId, Long questionId, String selectedOption);
 }
 ```
 </details>
 
-### 4.3. Repositorios
-
-```java
-public interface QuestionRepository extends JpaRepository<Question, Long> {
-    List<Question> findBySubjectAndActiveTrue(String subject);
-}
-
-public interface PlayerRepository extends JpaRepository<Player, Long> {
-    boolean existsByNickname(String nickname);
-}
-
-public interface GameSessionRepository extends JpaRepository<GameSession, Long> {
-    List<GameSession> findTop20ByOrderByScoreDesc();
-}
-
-public interface AnswerLogRepository extends JpaRepository<AnswerLog, Long> {
-    List<AnswerLog> findBySessionId(Long sessionId);
-}
-```
-
-### 4.4. Servicios (Business Logic)
+### 4.3. Servicios (Capa de Aplicación)
 
 <details>
-<summary><b>Ver SessionService.java</b></summary>
+<summary><b>Ver SubmitAnswerService.java</b></summary>
 
 ```java
+package levelup42.trivia.application.service.gamesession;
+
+import levelup42.trivia.domain.port.in.gamesession.SubmitAnswerUseCase;
+import org.springframework.stereotype.Service;
+
 @Service
-public class SessionService {
-    // Dependencies injected via constructor...
-
-    public Question nextQuestion(Long sessionId) {
-        List<Question> all = questionRepo.findAll();
-        return all.get(new Random().nextInt(all.size()));
-    }
-
-    public AnswerLog answer(AnswerLog log) {
-        return answerRepo.save(log);
-    }
-
-    public GameSession finish(GameSession s) {
-        s.setFinishedAt(Instant.now());
-        return sessionRepo.save(s);
+public class SubmitAnswerService implements SubmitAnswerUseCase {
+    private final GameSessionRepositoryPort sessionRepository;
+    private final QuestionRepositoryPort questionRepository;
+    // ... dependencies via constructor
+    
+    @Override
+    public boolean execute(UUID sessionId, Long questionId, String option) {
+        GameSession session = sessionRepository.findById(sessionId).orElseThrow();
+        Question question = questionRepository.findById(questionId).orElseThrow();
+        
+        boolean isCorrect = question.getCorrectOption().equals(option);
+        if (isCorrect) session.registerCorrectAnswer(10);
+        else session.registerIncorrectAnswer();
+        
+        sessionRepository.save(session);
+        return isCorrect;
     }
 }
 ```
