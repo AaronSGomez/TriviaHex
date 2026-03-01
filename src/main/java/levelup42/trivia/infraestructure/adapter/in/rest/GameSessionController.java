@@ -6,7 +6,9 @@ import levelup42.trivia.domain.port.in.gamesession.SubmitAnswerUseCase;
 import levelup42.trivia.domain.port.in.gamesession.FinishGameSessionUseCase;
 import levelup42.trivia.domain.port.in.gamesession.GetGameSessionUseCase;
 import levelup42.trivia.infraestructure.adapter.in.rest.dto.GameSessionRequest;
+import levelup42.trivia.infraestructure.adapter.in.rest.dto.GameSessionResponse;
 import levelup42.trivia.infraestructure.adapter.in.rest.dto.SubmitAnswerRequest;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,37 +31,38 @@ public class GameSessionController {
     }
 
     @PostMapping
-    public GameSession create(@RequestBody GameSessionRequest gameSessionRequest) {
-        return startGameSessionUseCase.createSession(
+    public GameSessionResponse create(@Valid @RequestBody GameSessionRequest gameSessionRequest) {
+        GameSession created = startGameSessionUseCase.createSession(
                 gameSessionRequest.getPlayerId(),
                 gameSessionRequest.getSubjet(),
                 gameSessionRequest.getTotalQuestions());
+        return GameSessionResponse.fromDomain(created);
     }
 
     @PostMapping("/{sessionId}/answer")
     public SubmitAnswerUseCase.AnswerResult answerQuestion(@PathVariable UUID sessionId,
-            @RequestBody SubmitAnswerRequest submitAnswerRequest) {
+            @Valid @RequestBody SubmitAnswerRequest submitAnswerRequest) {
         return submitAnswerUseCase.answerQuestion(sessionId,
                 submitAnswerRequest.getQuestionId(), submitAnswerRequest.getSelectedOption(), submitAnswerRequest.getTimeElapsedSeconds());
     }
 
     @PostMapping("/{sessionId}/finish")
-    public GameSession finishSession(@PathVariable UUID sessionId) {
-        return finishGameSessionUseCase.finishSession(sessionId);
+    public GameSessionResponse finishSession(@PathVariable UUID sessionId) {
+        return GameSessionResponse.fromDomain(finishGameSessionUseCase.finishSession(sessionId));
     }
 
     @GetMapping("/{sessionId}")
-    public GameSession getSessionById(@PathVariable UUID sessionId) {
-        return getGameSessionUseCase.getSessionById(sessionId);
+    public GameSessionResponse getSessionById(@PathVariable UUID sessionId) {
+        return GameSessionResponse.fromDomain(getGameSessionUseCase.getSessionById(sessionId));
     }
 
     @GetMapping("/player/{playerId}")
-    public List<GameSession> getPlayerHistory(@PathVariable UUID playerId) {
-        return getGameSessionUseCase.getPlayerHistory(playerId);
+    public List<GameSessionResponse> getPlayerHistory(@PathVariable UUID playerId) {
+        return getGameSessionUseCase.getPlayerHistory(playerId).stream().map(GameSessionResponse::fromDomain).toList();
     }
 
     @GetMapping("/leaderboard")
-    public List<GameSession> getLeaderboard() {
-        return getGameSessionUseCase.getLeaderboard();
+    public List<GameSessionResponse> getLeaderboard() {
+        return getGameSessionUseCase.getLeaderboard().stream().map(GameSessionResponse::fromDomain).toList();
     }
 }

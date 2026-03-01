@@ -1,17 +1,41 @@
 package levelup42.trivia.infraestructure.adapter.in.rest.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 public class QuestionRequest {
 
+    @NotBlank(message = "The statement cannot be empty")
     private String statement;
+
+    @NotBlank(message = "Option A cannot be empty")
     private String optionA;
+
+    @NotBlank(message = "Option B cannot be empty")
     private String optionB;
+
+    @NotBlank(message = "Option C cannot be empty")
     private String optionC;
+
+    @NotBlank(message = "Option D cannot be empty")
     private String optionD;
+
+    @NotBlank(message = "The correct option must be specified")
     private String correctOption;
+
+    @NotBlank(message = "The explanation cannot be empty")
     private String explanation;
+
+    @NotBlank(message = "The subject cannot be empty")
     private String subject;
+
+    @NotBlank(message = "The topic cannot be empty")
     private String topic;
+
+    @NotBlank(message = "The difficulty cannot be empty")
     private String difficulty;
+
+    @NotNull(message = "Active status must be specified")
     private boolean active;
 
     public QuestionRequest() {

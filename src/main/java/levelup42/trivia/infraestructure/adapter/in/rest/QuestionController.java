@@ -6,6 +6,8 @@ import levelup42.trivia.domain.port.in.question.DeleteQuestionUseCase;
 import levelup42.trivia.domain.port.in.question.UpdateQuestionUseCase;
 import levelup42.trivia.domain.port.in.question.GetQuestionUseCase;
 import levelup42.trivia.infraestructure.adapter.in.rest.dto.QuestionRequest;
+import levelup42.trivia.infraestructure.adapter.in.rest.dto.QuestionResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +33,7 @@ public class QuestionController {
     }
 
     @PostMapping
-    public ResponseEntity<Question> createQuestion(@RequestBody QuestionRequest request) {
+    public ResponseEntity<QuestionResponse> createQuestion(@Valid @RequestBody QuestionRequest request) {
         Question questionToCreate = new Question(
                 null,
                 request.getStatement(),
@@ -47,11 +49,11 @@ public class QuestionController {
                 request.isActive()
         );
         Question created = createQuestionUseCase.save(questionToCreate);
-        return ResponseEntity.ok(created);
+        return ResponseEntity.ok(QuestionResponse.fromDomain(created));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Question> updateQuestion(@PathVariable Long id, @RequestBody QuestionRequest request) {
+    public ResponseEntity<QuestionResponse> updateQuestion(@PathVariable Long id, @Valid @RequestBody QuestionRequest request) {
         Question questionToUpdate = new Question(
                 id,
                 request.getStatement(),
@@ -67,7 +69,7 @@ public class QuestionController {
                 request.isActive()
         );
         Question updated = updateQuestionUseCase.updateQuestion(id, questionToUpdate);
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(QuestionResponse.fromDomain(updated));
     }
 
     @DeleteMapping("/{id}")
@@ -77,14 +79,14 @@ public class QuestionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Question>> getAllQuestions() {
-        return ResponseEntity.ok(getQuestionUseCase.getAllQuestions());
+    public ResponseEntity<List<QuestionResponse>> getAllQuestions() {
+        return ResponseEntity.ok(getQuestionUseCase.getAllQuestions().stream().map(QuestionResponse::fromDomain).toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Question> getQuestionById(@PathVariable Long id) {
+    public ResponseEntity<QuestionResponse> getQuestionById(@PathVariable Long id) {
         return getQuestionUseCase.getQuestionById(id)
-                .map(ResponseEntity::ok)
+                .map(question -> ResponseEntity.ok(QuestionResponse.fromDomain(question)))
                 .orElse(ResponseEntity.notFound().build());
     }
 }

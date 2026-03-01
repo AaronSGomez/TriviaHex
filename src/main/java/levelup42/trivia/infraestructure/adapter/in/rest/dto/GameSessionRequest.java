@@ -1,10 +1,18 @@
 package levelup42.trivia.infraestructure.adapter.in.rest.dto;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public class GameSessionRequest {
 
+    @NotNull(message = "Player ID cannot be null")
     private final UUID playerId;
+
+    @NotBlank(message = "Subject cannot be empty")
     private final String subjet;
+
+    @Min(value = 1, message = "Total questions must be at least 1")
     private int totalQuestions;
 
 

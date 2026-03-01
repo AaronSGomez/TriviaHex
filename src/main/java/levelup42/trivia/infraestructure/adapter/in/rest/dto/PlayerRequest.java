@@ -1,8 +1,11 @@
 package levelup42.trivia.infraestructure.adapter.in.rest.dto;
+import jakarta.validation.constraints.NotBlank;
 
 public class PlayerRequest {
 
+    @NotBlank(message = "The name cannot be empty")
     private String name;
+    @NotBlank(message = "The mail cannot be empty")
     private String mail;
 
     public PlayerRequest() {
