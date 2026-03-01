@@ -45,4 +45,14 @@ public class QuestionJpaAdapter implements QuestionRepositoryPort {
     public void deleteQuestion(Long id) {
         repository.deleteById(id);
     }
+
+    @Override
+    public Optional<Question> findRandomUnansweredBySubject(String subject, List<Long> askedIds) {
+        return repository.findRandomUnansweredBySubject(subject, askedIds).map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Question> findRandomBySubject(String subject) {
+        return repository.findRandomBySubject(subject).map(mapper::toDomain);
+    }
 }

@@ -22,12 +22,14 @@ public class GameSessionController {
     private final SubmitAnswerUseCase submitAnswerUseCase;
     private final FinishGameSessionUseCase finishGameSessionUseCase;
     private final GetGameSessionUseCase getGameSessionUseCase;
+    private final levelup42.trivia.domain.port.in.gamesession.GetNextQuestionUseCase getNextQuestionUseCase;
 
-    public GameSessionController(StartGameSessionUseCase startGameSessionUseCase, SubmitAnswerUseCase submitAnswerUseCase, FinishGameSessionUseCase finishGameSessionUseCase, GetGameSessionUseCase getGameSessionUseCase) {
+    public GameSessionController(StartGameSessionUseCase startGameSessionUseCase, SubmitAnswerUseCase submitAnswerUseCase, FinishGameSessionUseCase finishGameSessionUseCase, GetGameSessionUseCase getGameSessionUseCase, levelup42.trivia.domain.port.in.gamesession.GetNextQuestionUseCase getNextQuestionUseCase) {
         this.startGameSessionUseCase = startGameSessionUseCase;
         this.submitAnswerUseCase = submitAnswerUseCase;
         this.finishGameSessionUseCase = finishGameSessionUseCase;
         this.getGameSessionUseCase = getGameSessionUseCase;
+        this.getNextQuestionUseCase = getNextQuestionUseCase;
     }
 
     @PostMapping
@@ -64,5 +66,12 @@ public class GameSessionController {
     @GetMapping("/leaderboard")
     public List<GameSessionResponse> getLeaderboard() {
         return getGameSessionUseCase.getLeaderboard().stream().map(GameSessionResponse::fromDomain).toList();
+    }
+
+    @GetMapping("/{sessionId}/next-question")
+    public org.springframework.http.ResponseEntity<levelup42.trivia.infraestructure.adapter.in.rest.dto.CurrentQuestionResponse> getNextQuestion(@PathVariable UUID sessionId) {
+        return getNextQuestionUseCase.getNextQuestion(sessionId)
+                .map(question -> org.springframework.http.ResponseEntity.ok(levelup42.trivia.infraestructure.adapter.in.rest.dto.CurrentQuestionResponse.fromDomain(question)))
+                .orElse(org.springframework.http.ResponseEntity.notFound().build());
     }
 }

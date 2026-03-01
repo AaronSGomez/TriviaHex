@@ -5,7 +5,9 @@ import levelup42.trivia.domain.port.in.player.UpdatePlayerUseCase;
 import levelup42.trivia.domain.port.out.PlayerRepositoryPort;
 
 import java.util.UUID;
+import org.springframework.stereotype.Service;
 
+@Service
 public class UpdatePlayerService implements UpdatePlayerUseCase {
 
     private final PlayerRepositoryPort playerRepositoryPort;

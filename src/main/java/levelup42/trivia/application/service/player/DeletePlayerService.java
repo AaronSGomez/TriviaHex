@@ -4,7 +4,9 @@ import levelup42.trivia.domain.port.in.player.DeletePlayerUseCase;
 import levelup42.trivia.domain.port.out.PlayerRepositoryPort;
 
 import java.util.UUID;
+import org.springframework.stereotype.Service;
 
+@Service
 public class DeletePlayerService implements DeletePlayerUseCase {
 
     private final PlayerRepositoryPort playerRepositoryPort;

@@ -12,4 +12,7 @@ public interface QuestionRepositoryPort {
     List<Question> findAll(); // read-All
     Optional<Question> findById(Long id); // read
 
+    Optional<Question> findRandomUnansweredBySubject(String subject, List<Long> askedIds);
+    Optional<Question> findRandomBySubject(String subject);
+
 }

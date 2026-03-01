@@ -23,6 +23,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -99,11 +101,60 @@ class QuestionControllerTest {
     }
 
     @Test
+    void getQuestionById_WhenFound_ReturnsQuestion() throws Exception {
+        when(getQuestionUseCase.getQuestionById(1L)).thenReturn(Optional.of(mockQuestion));
+
+        mockMvc.perform(get("/api/v1/questions/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.statement").value("What is 2+2?"));
+    }
+
+    @Test
     void getQuestionById_WhenNotFound_ReturnsNotFound() throws Exception {
         when(getQuestionUseCase.getQuestionById(99L)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/v1/questions/99")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateQuestion_WithValidData_ReturnsUpdatedQuestion() throws Exception {
+        Question updatedQuestion = new Question(
+                1L, "What is 3+3?", "6", "4", "5", "7", "A", "Basic math", "Math", "Addition", "Easy", true
+        );
+        when(updateQuestionUseCase.updateQuestion(any(Long.class), any(Question.class))).thenReturn(updatedQuestion);
+
+        String requestJson = """
+                {
+                    "statement": "What is 3+3?",
+                    "optionA": "6",
+                    "optionB": "4",
+                    "optionC": "5",
+                    "optionD": "7",
+                    "correctOption": "A",
+                    "explanation": "Basic math",
+                    "subject": "Math",
+                    "topic": "Addition",
+                    "difficulty": "Easy",
+                    "active": true
+                }
+                """;
+
+        mockMvc.perform(put("/api/v1/questions/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.statement").value("What is 3+3?"));
+    }
+
+    @Test
+    void deleteQuestion_ReturnsNoContent() throws Exception {
+        mockMvc.perform(delete("/api/v1/questions/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
     }
 }

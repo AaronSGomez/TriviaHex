@@ -10,5 +10,4 @@ import java.util.List;
 import java.util.UUID;
 
 public interface DataPlayerRepository extends JpaRepository<PlayerEntity, UUID> {
-    List<PlayerEntity> findBySubjectAndActiveTrue(String subject);
 }

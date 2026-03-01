@@ -65,6 +65,31 @@ public class GameSession {
         return this.status == SessionStatus.FINISHED;
     }
 
+    /**
+     * Calculates the exam grade on a scale from 0 to 10.
+     * Each correct answer adds a proportional value (10 / totalQuestions).
+     * Each incorrect answer subtracts 1/3 of the value of a single question.
+     * The grade is floored at 0 (cannot be negative).
+     */
+    public double getGrade() {
+        if (totalQuestions == 0) return 0.0;
+        
+        double questionValue = 10.0 / totalQuestions;
+        double penaltyValue = questionValue / 3.0;
+        
+        int incorrectAnswers = answeredQuestions - correctAnswers;
+        
+        double rawGrade = (correctAnswers * questionValue) - (incorrectAnswers * penaltyValue);
+        
+        // Ensure grade is between 0 and 10 and rounded to 2 decimal places
+        double finalGrade = Math.max(0.0, Math.min(10.0, rawGrade));
+        return Math.round(finalGrade * 100.0) / 100.0;
+    }
+
+    public boolean isPassed() {
+        return getGrade() >= 5.0;
+    }
+
     // getters
 
     public UUID getId() {return id;}

@@ -12,7 +12,11 @@ public interface GameSessionRepositoryPort {
 
     Optional<GameSession> findById(UUID id);
 
-    List<GameSession> findByPlayerId(UUID playerId);
+    List<GameSession> findByPlayerId(UUID sessionId);
 
     List<GameSession> findAllFinishedOrderedByScoreDesc();
+
+    List<Long> findAskedQuestionIdsBySessionId(UUID sessionId);
+
+    void registerAskedQuestion(UUID sessionId, Long questionId);
 }

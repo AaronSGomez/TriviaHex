@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -45,6 +46,9 @@ class GameSessionControllerTest {
 
     @Mock
     private GetGameSessionUseCase getGameSessionUseCase;
+
+    @Mock
+    private levelup42.trivia.domain.port.in.gamesession.GetNextQuestionUseCase getNextQuestionUseCase;
 
     @InjectMocks
     private GameSessionController gameSessionController;
@@ -121,6 +125,24 @@ class GameSessionControllerTest {
     }
 
     @Test
+    void getSessionById_WhenFound_ReturnsSession() throws Exception {
+        // Arrange
+        when(getGameSessionUseCase.getSessionById(sessionId)).thenReturn(mockSession);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/v1/session/" + sessionId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(sessionId.toString()))
+                .andExpect(jsonPath("$.playerId").value(playerId.toString()))
+                .andExpect(jsonPath("$.subjet").value("History"))
+                .andExpect(jsonPath("$.totalQuestions").value(5))
+                .andExpect(jsonPath("$.status").value("IN_PROGRESS"))
+                .andExpect(jsonPath("$.grade").value(0.0))
+                .andExpect(jsonPath("$.passed").value(false));
+    }
+
+    @Test
     void getSessionById_WhenNotFound_ReturnsNotFound() throws Exception {
         // Arrange
         when(getGameSessionUseCase.getSessionById(any(UUID.class)))
@@ -131,5 +153,81 @@ class GameSessionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Session not found"));
+    }
+
+    @Test
+    void finishSession_ReturnsFinishedSession() throws Exception {
+        // Arrange
+        when(finishGameSessionUseCase.finishSession(sessionId)).thenReturn(mockSession);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/v1/session/" + sessionId + "/finish")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(sessionId.toString()))
+                .andExpect(jsonPath("$.playerId").value(playerId.toString()))
+                .andExpect(jsonPath("$.grade").value(0.0))
+                .andExpect(jsonPath("$.passed").value(false))
+                .andExpect(jsonPath("$.status").value("IN_PROGRESS")); // the mock is in progress
+    }
+
+    @Test
+    void getPlayerHistory_ReturnsListOfSessions() throws Exception {
+        // Arrange
+        when(getGameSessionUseCase.getPlayerHistory(playerId)).thenReturn(List.of(mockSession));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/v1/session/player/" + playerId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(sessionId.toString()))
+                .andExpect(jsonPath("$[0].playerId").value(playerId.toString()))
+                .andExpect(jsonPath("$[0].grade").value(0.0))
+                .andExpect(jsonPath("$[0].passed").value(false));
+    }
+
+    @Test
+    void getLeaderboard_ReturnsListOfSessions() throws Exception {
+        // Arrange
+        when(getGameSessionUseCase.getLeaderboard()).thenReturn(List.of(mockSession));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/v1/session/leaderboard")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(sessionId.toString()))
+                .andExpect(jsonPath("$[0].playerId").value(playerId.toString()))
+                .andExpect(jsonPath("$[0].grade").value(0.0))
+                .andExpect(jsonPath("$[0].passed").value(false));
+    }
+
+    @Test
+    void getNextQuestion_WhenQuestionAvailable_ReturnsQuestion() throws Exception {
+        // Arrange
+        // Question constructor: (id, statement, optionA, optionB, optionC, optionD, correctOption, explanation, subject, topic, difficulty, active)
+        levelup42.trivia.domain.model.Question mockQuestion = new levelup42.trivia.domain.model.Question(
+                1L, "What is 2+2?", "3", "4", "5", "6", "4", "Basic math", "Math", "Addition", "Easy", true);
+        when(getNextQuestionUseCase.getNextQuestion(sessionId)).thenReturn(java.util.Optional.of(mockQuestion));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/v1/session/" + sessionId + "/next-question")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.statement").value("What is 2+2?"))
+                .andExpect(jsonPath("$.optionA").value("3"))
+                .andExpect(jsonPath("$.subject").value("Math"))
+                .andExpect(jsonPath("$.correctOption").doesNotExist());
+    }
+
+    @Test
+    void getNextQuestion_WhenNoQuestionAvailable_ReturnsNotFound() throws Exception {
+        // Arrange
+        when(getNextQuestionUseCase.getNextQuestion(sessionId)).thenReturn(java.util.Optional.empty());
+
+        // Act & Assert
+        mockMvc.perform(get("/api/v1/session/" + sessionId + "/next-question")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }
