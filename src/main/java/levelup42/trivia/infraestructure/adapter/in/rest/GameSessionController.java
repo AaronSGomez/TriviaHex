@@ -36,7 +36,7 @@ public class GameSessionController {
     public GameSessionResponse create(@Valid @RequestBody GameSessionRequest gameSessionRequest) {
         GameSession created = startGameSessionUseCase.createSession(
                 gameSessionRequest.getPlayerId(),
-                gameSessionRequest.getSubjet(),
+                gameSessionRequest.getSubject(),
                 gameSessionRequest.getTotalQuestions());
         return GameSessionResponse.fromDomain(created);
     }

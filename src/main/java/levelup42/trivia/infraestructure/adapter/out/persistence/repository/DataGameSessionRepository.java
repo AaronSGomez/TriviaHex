@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Repository
 public interface DataGameSessionRepository extends JpaRepository<GameSessionEntity, UUID> {
-    List<GameSessionEntity> findBySubjetAndStatus(String subjet, SessionStatus status);
+    List<GameSessionEntity> findBySubjectAndStatus(String subject, SessionStatus status);
     
     List<GameSessionEntity> findByPlayerId(UUID playerId);
     

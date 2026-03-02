@@ -46,9 +46,9 @@ public class GetNextQuestionService implements GetNextQuestionUseCase {
         Optional<Question> nextQuestion;
         if (askedQuestionIds.isEmpty()) {
             // Si es la primera pregunta de la sesión, no pasamos la lista vacía al IN de SQL (puede dar error de sintaxis en algunos DB engines)
-             nextQuestion = questionRepository.findRandomBySubject(session.getSubjet());
+             nextQuestion = questionRepository.findRandomBySubject(session.getSubject());
         } else {
-             nextQuestion = questionRepository.findRandomUnansweredBySubject(session.getSubjet(), askedQuestionIds);
+             nextQuestion = questionRepository.findRandomUnansweredBySubject(session.getSubject(), askedQuestionIds);
         }
 
         // 4. Si encontramos una pregunta, la registramos como preguntada en esta sesión para que no se repita

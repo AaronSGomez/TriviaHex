@@ -16,7 +16,7 @@ public class GameSessionEntity {
     @Id
     private UUID id;
     private UUID playerId;
-    private String subjet;
+    private String subject;
 
     private int totalQuestions;
     private int answeredQuestions;
@@ -32,10 +32,10 @@ public class GameSessionEntity {
     public GameSessionEntity() {
     }
 
-    public GameSessionEntity(UUID id, UUID playerId, String subjet, int totalQuestions) {
+    public GameSessionEntity(UUID id, UUID playerId, String subject, int totalQuestions) {
         this.id = id;
         this.playerId = playerId;
-        this.subjet = subjet;
+        this.subject = subject;
         this.totalQuestions = totalQuestions;
         this.answeredQuestions = 0;
         this.correctAnswers = 0;
@@ -45,11 +45,11 @@ public class GameSessionEntity {
     }
 
     // Constructor completo para el mapper
-    public GameSessionEntity(UUID id, UUID playerId, String subjet, int totalQuestions, int answeredQuestions,
+    public GameSessionEntity(UUID id, UUID playerId, String subject, int totalQuestions, int answeredQuestions,
                              int correctAnswers, int score, Instant startedAt, Instant finishedAt, SessionStatus status) {
         this.id = id;
         this.playerId = playerId;
-        this.subjet = subjet;
+        this.subject = subject;
         this.totalQuestions = totalQuestions;
         this.answeredQuestions = answeredQuestions;
         this.correctAnswers = correctAnswers;
@@ -84,7 +84,7 @@ public class GameSessionEntity {
 
     public UUID getPlayerId() {return playerId;}
 
-    public String getSubjet() {return subjet;}
+    public String getSubject() {return subject;}
 
     public int getTotalQuestions() {return totalQuestions;}
 

@@ -16,7 +16,7 @@ public class CreatePlayerService implements CreatePlayerUseCase {
 
     @Override
     public Player createPlayer(Player player) {
-        // En esta capa se aplicarían reglas de negocio si las hubiera
-        return playerRepositoryPort.savePlayer(player);
+        return playerRepositoryPort.findByMail(player.getMail())
+                .orElseGet(() -> playerRepositoryPort.savePlayer(player));
     }
 }

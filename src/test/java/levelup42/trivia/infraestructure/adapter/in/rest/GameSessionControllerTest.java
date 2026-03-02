@@ -73,7 +73,7 @@ class GameSessionControllerTest {
         when(startGameSessionUseCase.createSession(any(UUID.class), any(String.class), any(Integer.class)))
                 .thenReturn(mockSession);
 
-        String requestJson = String.format("{\"playerId\":\"%s\",\"subjet\":\"History\",\"totalQuestions\":5}", playerId.toString());
+        String requestJson = String.format("{\"playerId\":\"%s\",\"subject\":\"History\",\"totalQuestions\":5}", playerId.toString());
 
         // Act & Assert
         mockMvc.perform(post("/api/v1/session")
@@ -82,7 +82,7 @@ class GameSessionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(sessionId.toString()))
                 .andExpect(jsonPath("$.playerId").value(playerId.toString()))
-                .andExpect(jsonPath("$.subjet").value("History"))
+                .andExpect(jsonPath("$.subject").value("History"))
                 .andExpect(jsonPath("$.totalQuestions").value(5))
                 .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
     }
@@ -90,7 +90,7 @@ class GameSessionControllerTest {
     @Test
     void createSession_WithInvalidRequest_ReturnsBadRequest() throws Exception {
         // Arrange - request without subject (violates @NotBlank)
-        String requestJson = String.format("{\"playerId\":\"%s\",\"subjet\":\"\",\"totalQuestions\":5}", playerId.toString());
+        String requestJson = String.format("{\"playerId\":\"%s\",\"subject\":\"\",\"totalQuestions\":5}", playerId.toString());
 
         // Act & Assert
         mockMvc.perform(post("/api/v1/session")
@@ -135,7 +135,7 @@ class GameSessionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(sessionId.toString()))
                 .andExpect(jsonPath("$.playerId").value(playerId.toString()))
-                .andExpect(jsonPath("$.subjet").value("History"))
+                .andExpect(jsonPath("$.subject").value("History"))
                 .andExpect(jsonPath("$.totalQuestions").value(5))
                 .andExpect(jsonPath("$.status").value("IN_PROGRESS"))
                 .andExpect(jsonPath("$.grade").value(0.0))

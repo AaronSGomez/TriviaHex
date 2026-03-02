@@ -13,7 +13,7 @@ public class GameSessionMapper {
         return new GameSessionEntity(
                 domain.getId(),
                 domain.getPlayerId(),
-                domain.getSubjet(),
+                domain.getSubject(),
                 domain.getTotalQuestions(),
                 domain.getAnsweredQuestions(),
                 domain.getCorrectAnswers(),
@@ -30,7 +30,7 @@ public class GameSessionMapper {
         return new GameSession(
                 entity.getId(),
                 entity.getPlayerId(),
-                entity.getSubjet(),
+                entity.getSubject(),
                 entity.getTotalQuestions(),
                 entity.getAnsweredQuestions(),
                 entity.getCorrectAnswers(),

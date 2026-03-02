@@ -40,10 +40,14 @@ public class PlayerJpaAdapter implements PlayerRepositoryPort {
         jpaRepository.deleteById(id);
     }
 
-    @Override
     public List<Player> findAll() {
         return jpaRepository.findAll().stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<Player> findByMail(String mail) {
+        return jpaRepository.findByMail(mail).map(mapper::toDomain);
     }
 }

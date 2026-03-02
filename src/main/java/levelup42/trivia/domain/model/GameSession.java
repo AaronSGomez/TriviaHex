@@ -7,7 +7,7 @@ public class GameSession {
 
     private final UUID id;
     private final UUID playerId;
-    private final String subjet;
+    private final String subject;
 
     private int totalQuestions;
     private int answeredQuestions;
@@ -19,10 +19,10 @@ public class GameSession {
 
     private SessionStatus status;
 
-    public GameSession(UUID id, UUID playerId, String subjet, int totalQuestions) {
+    public GameSession(UUID id, UUID playerId, String subject, int totalQuestions) {
         this.id = id;
         this.playerId = playerId;
-        this.subjet = subjet;
+        this.subject = subject;
         this.totalQuestions = totalQuestions;
         this.answeredQuestions = 0;
         this.correctAnswers = 0;
@@ -32,11 +32,11 @@ public class GameSession {
     }
 
     // Constructor completo para rehidratar desde la base de datos
-    public GameSession(UUID id, UUID playerId, String subjet, int totalQuestions, int answeredQuestions,
+    public GameSession(UUID id, UUID playerId, String subject, int totalQuestions, int answeredQuestions,
                        int correctAnswers, int score, Instant startedAt, Instant finishedAt, SessionStatus status) {
         this.id = id;
         this.playerId = playerId;
-        this.subjet = subjet;
+        this.subject = subject;
         this.totalQuestions = totalQuestions;
         this.answeredQuestions = answeredQuestions;
         this.correctAnswers = correctAnswers;
@@ -96,7 +96,7 @@ public class GameSession {
 
     public UUID getPlayerId() {return playerId;}
 
-    public String getSubjet() {return subjet;}
+    public String getSubject() {return subject;}
 
     public int getTotalQuestions() {return totalQuestions;}
 

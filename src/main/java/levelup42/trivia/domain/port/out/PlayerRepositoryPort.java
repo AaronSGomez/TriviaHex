@@ -9,6 +9,7 @@ import java.util.UUID;
 public interface PlayerRepositoryPort {
     Player savePlayer(Player player);
     Optional<Player> findById(UUID id);
+    Optional<Player> findByMail(String mail);
     void deletePlayer(UUID id);
     List<Player> findAll();
 }

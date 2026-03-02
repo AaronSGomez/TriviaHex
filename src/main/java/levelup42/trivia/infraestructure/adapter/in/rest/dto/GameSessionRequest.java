@@ -10,15 +10,15 @@ public class GameSessionRequest {
     private final UUID playerId;
 
     @NotBlank(message = "Subject cannot be empty")
-    private final String subjet;
+    private final String subject;
 
     @Min(value = 1, message = "Total questions must be at least 1")
     private int totalQuestions;
 
 
-    public GameSessionRequest(UUID playerId, String subjet, int totalQuestions) {
+    public GameSessionRequest(UUID playerId, String subject, int totalQuestions) {
         this.playerId = playerId;
-        this.subjet = subjet;
+        this.subject = subject;
         this.totalQuestions = totalQuestions;
     }
 
@@ -26,7 +26,7 @@ public class GameSessionRequest {
 
     public UUID getPlayerId() {return playerId;}
 
-    public String getSubjet() {return subjet;}
+    public String getSubject() {return subject;}
 
     public int getTotalQuestions() {return totalQuestions;}
 
