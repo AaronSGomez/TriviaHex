@@ -1,6 +1,7 @@
 package levelup42.trivia.infraestructure.adapter.out.persistence;
 
 import levelup42.trivia.domain.model.GameSession;
+import levelup42.trivia.domain.model.SessionStatus;
 import levelup42.trivia.domain.port.out.GameSessionRepositoryPort;
 import levelup42.trivia.infraestructure.adapter.out.persistence.entity.GameSessionEntity;
 import levelup42.trivia.infraestructure.adapter.out.persistence.mapper.GameSessionMapper;
@@ -48,7 +49,7 @@ public class GameSessionJpaAdapter implements GameSessionRepositoryPort {
 
     @Override
     public List<GameSession> findAllFinishedOrderedByScoreDesc() {
-        return repository.findAllByStatusOrderByScoreDesc("FINISHED").stream()
+        return repository.findAllByStatusOrderByScoreDesc(SessionStatus.FINISHED).stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }

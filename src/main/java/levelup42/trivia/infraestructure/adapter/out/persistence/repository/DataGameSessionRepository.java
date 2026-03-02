@@ -14,5 +14,5 @@ public interface DataGameSessionRepository extends JpaRepository<GameSessionEnti
     
     List<GameSessionEntity> findByPlayerId(UUID playerId);
     
-    List<GameSessionEntity> findAllByStatusOrderByScoreDesc(String status);
+    List<GameSessionEntity> findAllByStatusOrderByScoreDesc(SessionStatus status);
 }
