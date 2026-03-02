@@ -8,9 +8,23 @@ services:
       POSTGRES_USER: trivia_user
       POSTGRES_PASSWORD: supersecret
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    container_name: trivia_backend
+    restart: always
+    ports:
+      - "127.0.0.1:8081:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/trivia
+      - SPRING_DATASOURCE_USERNAME=trivia_user
+      - SPRING_DATASOURCE_PASSWORD=supersecret
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      - postgres
 
 volumes:
   postgres_data:

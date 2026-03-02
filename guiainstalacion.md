@@ -54,49 +54,33 @@ En la misma carpeta raíz, crea/modifica el archivo `docker-compose.yml`. Config
 *(El almacenamiento NVMe de la Raspberry Pi 5 procesará de sobra I/O, el servicio volará 🎉).*
 
 ```yaml
-version: '3.8'
-
 services:
-  postgres-db:
+  postgres:
     image: postgres:16
-    container_name: trivia-postgres
+    container_name: trivia_postgres
+    restart: always
     environment:
       POSTGRES_DB: trivia
       POSTGRES_USER: trivia_user
-      POSTGRES_PASSWORD: trivia_password
+      POSTGRES_PASSWORD: supersecret
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - trivia-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U trivia_user -d trivia"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
-  trivia-app:
+  backend:
     build: .
-    container_name: trivia-backend
-    depends_on:
-      postgres-db:
-        condition: service_healthy # Espera hasta que Postgres esté 100% operativo
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/trivia
-      - SPRING_DATASOURCE_USERNAME=trivia_user
-      - SPRING_DATASOURCE_PASSWORD=trivia_password
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    container_name: trivia_backend
+    restart: always
     ports:
-      - "8080:8080"
-    networks:
-      - trivia-network
-    restart: unless-stopped
-
-networks:
-  trivia-network:
-    driver: bridge
+      - "127.0.0.1:8081:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/trivia
+      - SPRING_DATASOURCE_USERNAME=trivia_user
+      - SPRING_DATASOURCE_PASSWORD=supersecret
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      - postgres
 
 volumes:
   postgres_data:
