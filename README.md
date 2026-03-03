@@ -91,6 +91,8 @@ levelup42.trivia/
     │       └── repository/
     │
     ├── config/
+    │   ├── exception/
+    │   ├── CorsConfig.java
     │   ├── DebugExceptionHandler.java
     │   └── OpenApiConfig.java
     │
@@ -302,6 +304,14 @@ public class SubmitAnswerService implements SubmitAnswerUseCase {
 }
 ```
 </details>
+
+### 4.4. Infraestructura y Configuración (`config/`)
+
+El paquete `infraestructure/config/` centraliza la configuración del framework y la seguridad de la aplicación:
+
+*   **`CorsConfig.java`**: Define las políticas de **CORS (Cross-Origin Resource Sharing)**, permitiendo especificar orígenes, métodos y cabeceras autorizados. Esta clase se implementó recientemente **para permitir que las Web Apps (ej. interfaz en Flutter Web) puedan comunicarse con el backend** sin ser bloqueadas por las restricciones de seguridad del navegador.
+*   **`OpenApiConfig.java`**: Integra y configura **Swagger / OpenAPI 3**, generando y sirviendo de forma automática la documentación interactiva y los esquemas del API REST.
+*   **`DebugExceptionHandler.java`** (y el paquete `exception/`): Gestiona las excepciones de manera global. Intercepta los errores lanzados por la aplicación y los convierte en respuestas HTTP estandarizadas para el cliente.
 
 ---
 
