@@ -5,8 +5,8 @@ Quiero que actúes como un desarrollador experto en Flutter. Debes crear una apl
 
 ## Información del Backend
 El backend está construido con Spring Boot (Java 21) usando Arquitectura Hexagonal.
-*   **Base URL:** `https://triviahex.duckdns.org` (o la IP local si se prueba en la misma red, pero esta es la pública).
-*   **Documentación API (Swagger):** Toda la especificación de los endpoints en formato OpenAPI se puede encontrar interactuando con `https://triviahex.duckdns.org/swagger-ui/index.html` o descargando el JSON desde `https://triviahex.duckdns.org/v3/api-docs`.
+*   **Base URL:** `https://tuapi.duckdns.org` (o la IP local si se prueba en la misma red, pero esta es la pública).
+*   **Documentación API (Swagger):** Toda la especificación de los endpoints en formato OpenAPI se puede encontrar interactuando con `https://tuapi.duckdns.org/swagger-ui/index.html` o descargando el JSON desde `https://tuapi.duckdns.org/v3/api-docs`.
 
 La API maneja principalmente 3 entidades clave:
 1.  **Player (Jugador):** Creación, lectura de ranking, eliminación.
