@@ -32,5 +32,8 @@ public class AuthDto {
     @NoArgsConstructor
     public static class AuthenticationResponse {
         private String token;
+        private java.util.UUID id;
+        private String name;
+        private String mail;
     }
 }
