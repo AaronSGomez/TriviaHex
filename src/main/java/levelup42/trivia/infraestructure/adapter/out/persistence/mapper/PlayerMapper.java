@@ -16,6 +16,8 @@ public class PlayerMapper {
                 entityId,
                 domain.getName(),
                 domain.getMail(),
+                domain.getPassword(),
+                domain.getRole(),
                 domain.getCreatedAt()
         );
     }
@@ -35,7 +37,9 @@ public class PlayerMapper {
         return new Player(
                 entity.getId(),
                 entity.getName(),
-                entity.getMail()
+                entity.getMail(),
+                entity.getPassword(),
+                entity.getRole()
         );
     }
 }

@@ -3,6 +3,10 @@ package levelup42.trivia.infraestructure.adapter.out.persistence.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
+import levelup42.trivia.domain.model.Player.Role;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -15,16 +19,26 @@ public class PlayerEntity {
     private UUID id;
     private String name;
     private String mail;
+    
+    @Column(nullable = false)
+    private String password;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+    
     private Instant createdAt;
 
     // JPA requiere constructor por defecto
     public PlayerEntity() {
     }
 
-    public PlayerEntity(UUID id, String name, String mail, Instant createdAt) {
+    public PlayerEntity(UUID id, String name, String mail, String password, Role role, Instant createdAt) {
         this.id = id;
         this.name = name;
         this.mail = mail;
+        this.password = password;
+        this.role = role;
         this.createdAt = createdAt;
     }
 
@@ -50,6 +64,22 @@ public class PlayerEntity {
 
     public void setMail(String mail) {
         this.mail = mail;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public Instant getCreatedAt() {

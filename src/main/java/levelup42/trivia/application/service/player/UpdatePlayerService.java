@@ -21,11 +21,12 @@ public class UpdatePlayerService implements UpdatePlayerUseCase {
         Player existingPlayer = playerRepositoryPort.findById(id)
                 .orElseThrow(()-> new IllegalArgumentException("Player with id: ["+id+"] not found"));
 
-        // Create a new Player
         Player updatedPlayer= new Player(
-                existingPlayer.getId(),
-                existingPlayer.getName(),
-                existingPlayer.getMail()
+                id,
+                playerDetails.getName(),
+                playerDetails.getMail(),
+                existingPlayer.getPassword(),
+                existingPlayer.getRole()
         );
 
         return playerRepositoryPort.savePlayer(updatedPlayer);

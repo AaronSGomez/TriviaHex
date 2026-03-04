@@ -2,8 +2,6 @@ package levelup42.trivia.infraestructure.adapter.in.rest;
 
 import levelup42.trivia.domain.model.Question;
 import levelup42.trivia.domain.port.in.question.CreateQuestionUseCase;
-import levelup42.trivia.domain.port.in.question.DeleteQuestionUseCase;
-import levelup42.trivia.domain.port.in.question.UpdateQuestionUseCase;
 import levelup42.trivia.domain.port.in.question.GetQuestionUseCase;
 import levelup42.trivia.infraestructure.adapter.in.rest.dto.QuestionRequest;
 import levelup42.trivia.infraestructure.adapter.in.rest.dto.QuestionResponse;
@@ -12,27 +10,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/v1/questions")
 public class QuestionController {
 
     private final CreateQuestionUseCase createQuestionUseCase;
-    private final UpdateQuestionUseCase updateQuestionUseCase;
-    private final DeleteQuestionUseCase deleteQuestionUseCase;
     private final GetQuestionUseCase getQuestionUseCase;
 
     public QuestionController(CreateQuestionUseCase createQuestionUseCase,
-                              UpdateQuestionUseCase updateQuestionUseCase,
-                              DeleteQuestionUseCase deleteQuestionUseCase,
                               GetQuestionUseCase getQuestionUseCase) {
         this.createQuestionUseCase = createQuestionUseCase;
-        this.updateQuestionUseCase = updateQuestionUseCase;
-        this.deleteQuestionUseCase = deleteQuestionUseCase;
         this.getQuestionUseCase = getQuestionUseCase;
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<QuestionResponse> createQuestion(@Valid @RequestBody QuestionRequest request) {
         Question questionToCreate = new Question(
                 null,
@@ -50,32 +44,6 @@ public class QuestionController {
         );
         Question created = createQuestionUseCase.save(questionToCreate);
         return ResponseEntity.ok(QuestionResponse.fromDomain(created));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<QuestionResponse> updateQuestion(@PathVariable Long id, @Valid @RequestBody QuestionRequest request) {
-        Question questionToUpdate = new Question(
-                id,
-                request.getStatement(),
-                request.getOptionA(),
-                request.getOptionB(),
-                request.getOptionC(),
-                request.getOptionD(),
-                request.getCorrectOption(),
-                request.getExplanation(),
-                request.getSubject(),
-                request.getTopic(),
-                request.getDifficulty(),
-                request.isActive()
-        );
-        Question updated = updateQuestionUseCase.updateQuestion(id, questionToUpdate);
-        return ResponseEntity.ok(QuestionResponse.fromDomain(updated));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteQuestion(@PathVariable Long id) {
-        deleteQuestionUseCase.deleteQuestion(id);
-        return ResponseEntity.noContent().build();
     }
 
     @GetMapping

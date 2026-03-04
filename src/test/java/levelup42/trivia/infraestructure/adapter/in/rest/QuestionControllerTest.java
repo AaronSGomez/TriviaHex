@@ -2,8 +2,6 @@ package levelup42.trivia.infraestructure.adapter.in.rest;
 
 import levelup42.trivia.domain.model.Question;
 import levelup42.trivia.domain.port.in.question.CreateQuestionUseCase;
-import levelup42.trivia.domain.port.in.question.DeleteQuestionUseCase;
-import levelup42.trivia.domain.port.in.question.UpdateQuestionUseCase;
 import levelup42.trivia.domain.port.in.question.GetQuestionUseCase;
 import levelup42.trivia.infraestructure.config.exception.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,8 +21,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,12 +31,6 @@ class QuestionControllerTest {
 
     @Mock
     private CreateQuestionUseCase createQuestionUseCase;
-
-    @Mock
-    private UpdateQuestionUseCase updateQuestionUseCase;
-
-    @Mock
-    private DeleteQuestionUseCase deleteQuestionUseCase;
 
     @Mock
     private GetQuestionUseCase getQuestionUseCase;
@@ -118,43 +108,5 @@ class QuestionControllerTest {
         mockMvc.perform(get("/api/v1/questions/99")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void updateQuestion_WithValidData_ReturnsUpdatedQuestion() throws Exception {
-        Question updatedQuestion = new Question(
-                1L, "What is 3+3?", "6", "4", "5", "7", "A", "Basic math", "Math", "Addition", "Easy", true
-        );
-        when(updateQuestionUseCase.updateQuestion(any(Long.class), any(Question.class))).thenReturn(updatedQuestion);
-
-        String requestJson = """
-                {
-                    "statement": "What is 3+3?",
-                    "optionA": "6",
-                    "optionB": "4",
-                    "optionC": "5",
-                    "optionD": "7",
-                    "correctOption": "A",
-                    "explanation": "Basic math",
-                    "subject": "Math",
-                    "topic": "Addition",
-                    "difficulty": "Easy",
-                    "active": true
-                }
-                """;
-
-        mockMvc.perform(put("/api/v1/questions/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestJson))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.statement").value("What is 3+3?"));
-    }
-
-    @Test
-    void deleteQuestion_ReturnsNoContent() throws Exception {
-        mockMvc.perform(delete("/api/v1/questions/1")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
     }
 }

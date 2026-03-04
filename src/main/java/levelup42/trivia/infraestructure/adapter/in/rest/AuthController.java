@@ -1,0 +1,46 @@
+package levelup42.trivia.infraestructure.adapter.in.rest;
+
+import jakarta.validation.Valid;
+import levelup42.trivia.domain.model.Player;
+import levelup42.trivia.domain.port.in.auth.AuthUseCase;
+import levelup42.trivia.infraestructure.adapter.in.rest.dto.AuthDto.AuthenticationResponse;
+import levelup42.trivia.infraestructure.adapter.in.rest.dto.AuthDto.LoginRequest;
+import levelup42.trivia.infraestructure.adapter.in.rest.dto.AuthDto.RegisterRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    private final AuthUseCase authUseCase;
+
+    public AuthController(AuthUseCase authUseCase) {
+        this.authUseCase = authUseCase;
+    }
+
+    @PostMapping("/register/admin")
+    public ResponseEntity<AuthenticationResponse> registerAdmin(@RequestBody RegisterRequest request) {
+        authUseCase.register(request.getEmail(), request.getPassword(), Player.Role.ADMIN);
+        // Automatically log them in after registration to return the token
+        String token = authUseCase.login(request.getEmail(), request.getPassword());
+        return ResponseEntity.ok(AuthenticationResponse.builder().token(token).build());
+    }
+    
+    @PostMapping("/register")
+    public ResponseEntity<AuthenticationResponse> registerUser(@RequestBody RegisterRequest request) {
+        authUseCase.register(request.getEmail(), request.getPassword(), Player.Role.USER);
+        // Automatically log them in after registration to return the token
+        String token = authUseCase.login(request.getEmail(), request.getPassword());
+        return ResponseEntity.ok(AuthenticationResponse.builder().token(token).build());
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest request) {
+        String token = authUseCase.login(request.getEmail(), request.getPassword());
+        return ResponseEntity.ok(AuthenticationResponse.builder().token(token).build());
+    }
+}
