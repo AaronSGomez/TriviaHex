@@ -12,7 +12,8 @@ public class AuthDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class RegisterRequest {
-        private String email;
+        private String mail;
+        private String name;
         private String password;
     }
 
@@ -21,7 +22,7 @@ public class AuthDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class LoginRequest {
-        private String email;
+        private String mail;
         private String password;
     }
 

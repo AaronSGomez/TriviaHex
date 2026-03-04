@@ -34,15 +34,15 @@ public class AuthService implements AuthUseCase {
     }
 
     @Override
-    public Player register(String email, String password, Player.Role role) {
-        if (playerRepositoryPort.findByMail(email).isPresent()) {
-            throw new UserAlreadyExistsException("A user with email " + email + " already exists.");
+    public Player register(String mail, String name, String password, Player.Role role) {
+        if (playerRepositoryPort.findByMail(mail).isPresent()) {
+            throw new UserAlreadyExistsException("A user with email " + mail + " already exists.");
         }
 
         Player userToCreate = new Player(
                 UUID.randomUUID(),
-                "Anonymous", // A placeholder or require name in AuthRequest
-                email,
+                name, // A placeholder or require name in AuthRequest
+                mail,
                 passwordEncoder.encode(password),
                 role
         );
@@ -51,13 +51,13 @@ public class AuthService implements AuthUseCase {
     }
 
     @Override
-    public String login(String email, String password) {
+    public String login(String mail, String password) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password)
+                new UsernamePasswordAuthenticationToken(mail, password)
         );
         
         // If authenticationManager doesn't throw an exception, user is authenticated
-        var user = playerRepositoryPort.findByMail(email).orElseThrow();
+        var user = playerRepositoryPort.findByMail(mail).orElseThrow();
         
         var userDetails = new CustomUserDetails(
                 new levelup42.trivia.infraestructure.adapter.out.persistence.entity.PlayerEntity(

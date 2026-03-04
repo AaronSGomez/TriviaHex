@@ -24,23 +24,23 @@ public class AuthController {
 
     @PostMapping("/register/admin")
     public ResponseEntity<AuthenticationResponse> registerAdmin(@RequestBody RegisterRequest request) {
-        authUseCase.register(request.getEmail(), request.getPassword(), Player.Role.ADMIN);
+        authUseCase.register(request.getMail(),request.getName(), request.getPassword(), Player.Role.ADMIN);
         // Automatically log them in after registration to return the token
-        String token = authUseCase.login(request.getEmail(), request.getPassword());
+        String token = authUseCase.login(request.getMail(), request.getPassword());
         return ResponseEntity.ok(AuthenticationResponse.builder().token(token).build());
     }
     
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> registerUser(@RequestBody RegisterRequest request) {
-        authUseCase.register(request.getEmail(), request.getPassword(), Player.Role.USER);
+        authUseCase.register(request.getMail(), request.getName(), request.getPassword(), Player.Role.USER);
         // Automatically log them in after registration to return the token
-        String token = authUseCase.login(request.getEmail(), request.getPassword());
+        String token = authUseCase.login(request.getMail(), request.getPassword());
         return ResponseEntity.ok(AuthenticationResponse.builder().token(token).build());
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest request) {
-        String token = authUseCase.login(request.getEmail(), request.getPassword());
+        String token = authUseCase.login(request.getMail(), request.getPassword());
         return ResponseEntity.ok(AuthenticationResponse.builder().token(token).build());
     }
 }
