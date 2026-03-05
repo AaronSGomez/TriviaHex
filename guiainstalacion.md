@@ -79,6 +79,9 @@ services:
       - SPRING_DATASOURCE_USERNAME=trivia_user
       - SPRING_DATASOURCE_PASSWORD=supersecret
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      # Variables de seguridad JWT (Imprescindibles)
+      - APPLICATION_SECURITY_JWT_SECRET_KEY=UnaClaveSecretaLargaEnHexadecimalOBase64ParaJWTDeAlMenos256Bits
+      - APPLICATION_SECURITY_JWT_EXPIRATION=86400000 
     depends_on:
       - postgres
 

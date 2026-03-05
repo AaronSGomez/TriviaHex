@@ -33,9 +33,10 @@ src/main/java/levelup42/trivia/
 └── infraestructure/                        # Detalles técnicos, frameworks y bases de datos
     ├── adapter/                            # Implementación de los puertos
     │   ├── in/rest/                        # Controladores HTTP (Spring Web)
-    │   │   ├── GameSessionController.java
-    │   │   ├── PlayerController.java
-    │   │   ├── QuestionController.java
+    │   │   ├── AuthController.java         # Acceso libre (Registro y Login JWT)
+    │   │   ├── GameSessionController.java  # Requiere JWT
+    │   │   ├── PlayerController.java       # Requiere JWT
+    │   │   ├── QuestionController.java     # Protegido por Roles (ADMIN)
     │   │   └── dto/                        # Objetos de transferencia de red (Request/Response)
     │   │
     │   └── out/persistence/                # Acceso a datos (Spring Data JPA)
@@ -46,8 +47,17 @@ src/main/java/levelup42/trivia/
     │       └── repository/                 # Interfaces de Spring Data JpaRepository
     │
     ├── config/                             # Configuraciones de Spring (Cors, Swagger, Excepciones)
-    │   ├── DebugExceptionHandler.java      # Manejo global de errores
-    │   └── OpenApiConfig.java              # Configuración de la UI de Swagger
+    │   ├── exception/
+    │   │   └── GlobalExceptionHandler.java # Manejo global de errores (401, 403, 500)
+    │   ├── CorsConfig.java                 # Configuración de orígenes permitidos
+    │   └── OpenApiConfig.java              # Configuración de la UI de Swagger con Token JWT
+    │
+    ├── security/                           # Implementación de Spring Security
+    │   ├── jwt/
+    │   │   ├── JwtAuthenticationFilter.java# Intercepta y valida tokens en cada petición
+    │   │   └── JwtService.java             # Lógica de firmado y generación de tokens
+    │   ├── CustomUserDetails.java          # Adaptador de Security a nuestra entidad Player
+    │   └── SecurityConfig.java             # Filtros de Stateless HTTP y reglas `@PreAuthorize`
     │
     └── mapper/                             # Conversores entre Dominio <-> Infraestructura
         ├── GameSessionMapper.java
@@ -68,11 +78,15 @@ La API expone los siguientes endpoints principales bajo `/api/v1`:
 - `GET /player/{playerId}` - Obtener el historial de sesiones jugadas por un jugador, incluyendo su calificación en cada una.
 - `GET /leaderboard` - Obtener la clasificación global de las sesiones finalizadas, ordenadas por mayor puntuación.
 
-### Player (`/api/v1/player`)
-- `POST /` - Registrar un nuevo jugador.
-- `GET /{id}` - Obtener perfil de un jugador.
-- `PUT /{id}` - Actualizar perfil de un jugador.
-- `DELETE /{id}` - Eliminar un jugador.
+### Player (`/api/v1/player` & `/api/auth`)
+- **Autenticación (`/api/auth`) [PÚBLICO]**:
+  - `POST /register` - Inscribir nuevo jugador. Retorna Token JWT.
+  - `POST /login` - Iniciar sesión. Retorna Token JWT.
+- **Consultas (`/api/v1/players`) [Requiere Token]**:
+  - `GET /` - Listar todos los jugadores (público o protegido, según convenga).
+  - `GET /{id}` - Obtener perfil de un jugador específico.
+  - `PUT /{id}` - Actualizar perfil de un jugador.
+  - `DELETE /{id}` - Eliminar un jugador.
 
 ### Question (`/api/v1/question`)
 - `POST /` - Crear una nueva pregunta para el banco de preguntas.

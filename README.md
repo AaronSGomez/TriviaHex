@@ -2,9 +2,11 @@
 
 ![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-green?logo=springboot)
+![Spring Security](https://img.shields.io/badge/Spring_Security-Auth-brightgreen?logo=springsecurity)
+![JWT](https://img.shields.io/badge/JWT-Token-black?logo=jsonwebtokens)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker)
-![Nginx](https://img.shields.io/badge/Nginx-Load_Balancer-009639?logo=nginx)
+![Nginx](https://img.shields.io/badge/Nginx-Reverse_Proxy-009639?logo=nginx)
 
 Proyecto backend robusto para un sistema de **Trivia Quiz**. Diseñado para la preparación de exámenes y competición multijugador, optimizado para despliegue en **Raspberry Pi 5** mediante contenedores Docker con balanceo de carga.
 
@@ -25,9 +27,10 @@ Proyecto backend robusto para un sistema de **Trivia Quiz**. Diseñado para la p
 El sistema se compone de un cluster de aplicaciones Spring Boot stateless, gobernadas por un balanceador de carga Nginx y respaldadas por una base de datos PostgreSQL.
 
 ### Componentes
-* **Backend:** Spring Boot (Stateless API).
+* **Backend:** Spring Boot (Stateless API) con **Arquitectura Hexagonal**.
+* **Seguridad:** Spring Security con **JWT** (JSON Web Tokens) y RBAC (Rol-Based Access Control).
 * **Base de Datos:** PostgreSQL.
-* **Balanceador:** Nginx (Round Robin).
+* **Proxy Inverso:** Nginx (Proxy inverso para cazar IPs y enmascarar puertos).
 * **Escalado:** 3 réplicas activas del backend.
 
 ### Diagrama de Infraestructura
@@ -158,31 +161,31 @@ classDiagram
 Path base: `/api/v1`
 
 ### 📝 Preguntas (Questions)
-| Método | Endpoint | Descripción |
-| :--- | :--- | :--- |
-| `GET` | `/question` | Listar todas las preguntas |
-| `POST` | `/question` | Crear nueva pregunta |
-| `PUT` | `/question/{id}` | Actualizar pregunta |
-| `DELETE` | `/question/{id}` | Eliminar pregunta |
+| Método | Endpoint | Descripción | Seguridad |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/question` | Listar todas las preguntas | Público |
+| `POST` | `/question` | Crear nueva pregunta | **ADMIN** |
+| `PUT` | `/question/{id}` | Actualizar pregunta | **ADMIN** |
+| `DELETE` | `/question/{id}` | Eliminar pregunta (Soft Delete) | **ADMIN** |
 
-### 👤 Jugadores (Players)
-| Método | Endpoint | Descripción |
-| :--- | :--- | :--- |
-| `POST` | `/player` | Registrar jugador |
-| `GET` | `/player/{id}` | Obtener perfil de un jugador |
-| `PUT` | `/player/{id}` | Actualizar perfil de un jugador |
-| `DELETE` | `/player/{id}` | Eliminar un jugador |
+### 👤 Jugadores y Autenticación (Auth / Players)
+| Método | Endpoint | Descripción | Seguridad |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/auth/register` | Registrar jugador e iniciar sesión | Público |
+| `POST` | `/auth/login` | Iniciar sesión y obtener JWT | Público |
+| `GET` | `/players` | Listar todos los jugadores | Requiere Token |
+| `GET` | `/players/{id}` | Obtener perfil de un jugador | Requiere Token |
 
 ### 🎮 Sesiones de Juego (Game Flow)
-| Método | Endpoint | Descripción |
-| :--- | :--- | :--- |
-| `POST` | `/session` | Iniciar nueva sesión de juego |
-| `GET` | `/session/{sessionId}` | Obtener detalles y estado (incluye nota) |
-| `GET` | `/session/{sessionId}/next-question` | Obtener siguiente pregunta (oculta respuesta correcta) |
-| `POST` | `/session/{sessionId}/answer` | Enviar una respuesta y evaluar acierto |
-| `POST` | `/session/{sessionId}/finish` | Finalizar explícitamente una sesión en curso |
-| `GET` | `/session/player/{playerId}` | Historial de sesiones jugadas por un jugador |
-| `GET` | `/session/leaderboard` | Clasificación global de sesiones finalizadas |
+| Método | Endpoint | Descripción | Seguridad |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/session` | Iniciar nueva sesión de juego | Requiere Token |
+| `GET` | `/session/{sessionId}` | Obtener detalles y estado (incluye nota) | Requiere Token |
+| `GET` | `/session/{sessionId}/next-question` | Obtener siguiente pregunta (oculta correcta) | Requiere Token |
+| `POST` | `/session/{sessionId}/answer` | Enviar una respuesta y evaluar acierto | Requiere Token |
+| `POST` | `/session/{sessionId}/finish` | Finalizar explícitamente una sesión en curso | Requiere Token |
+| `GET` | `/session/player/{playerId}` | Historial de sesiones jugadas por un jugador | Requiere Token |
+| `GET` | `/session/leaderboard` | Clasificación global de sesiones finalizadas | Requiere Token |
 
 ---
 
@@ -307,11 +310,13 @@ public class SubmitAnswerService implements SubmitAnswerUseCase {
 
 ### 4.4. Infraestructura y Configuración (`config/`)
 
-El paquete `infraestructure/config/` centraliza la configuración del framework y la seguridad de la aplicación:
+El paquete `infraestructure/config/` y `infraestructure/security/` centralizan la configuración del framework y la seguridad de la aplicación:
 
-*   **`CorsConfig.java`**: Define las políticas de **CORS (Cross-Origin Resource Sharing)**, permitiendo especificar orígenes, métodos y cabeceras autorizados. Esta clase se implementó recientemente **para permitir que las Web Apps (ej. interfaz en Flutter Web) puedan comunicarse con el backend** sin ser bloqueadas por las restricciones de seguridad del navegador.
-*   **`OpenApiConfig.java`**: Integra y configura **Swagger / OpenAPI 3**, generando y sirviendo de forma automática la documentación interactiva y los esquemas del API REST.
-*   **`DebugExceptionHandler.java`** (y el paquete `exception/`): Gestiona las excepciones de manera global. Intercepta los errores lanzados por la aplicación y los convierte en respuestas HTTP estandarizadas para el cliente.
+*   **`SecurityConfig.java`**: Configura Spring Security (stateless) activando los filtros JWT y securizando los endpoints en función a su Rol (`@PreAuthorize("hasRole('ADMIN')")`).
+*   **`JwtAuthenticationFilter.java`**: Filtro transversal JWT para interceptar cada petición REST y extraer/validar el token en la cabecera `Authorization`. Autoriza el contexto de ejecución del hilo concurrente.
+*   **`CorsConfig.java`**: Define las políticas de **CORS (Cross-Origin Resource Sharing)**, permitiendo especificar orígenes, métodos y cabeceras autorizados.
+*   **`OpenApiConfig.java`**: Integra y configura **Swagger / OpenAPI 3**, generando y sirviendo de forma automática la documentación interactiva y los esquemas del API REST al inyectar el token JWT global.
+*   **`GlobalExceptionHandler.java`**: Gestiona las excepciones de manera global, interceptando accesos denegados (403), no autorizados (401) o fallos de dominio (409) para que el servidor nunca se caiga y no exponga trazas a atacantes potenciales.
 
 ---
 
