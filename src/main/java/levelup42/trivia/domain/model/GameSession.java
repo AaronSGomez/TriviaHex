@@ -12,6 +12,7 @@ public class GameSession {
     private int totalQuestions;
     private int answeredQuestions;
     private int correctAnswers;
+    private int skippedAnswers;
     private int score;
 
     private Instant startedAt;
@@ -26,6 +27,7 @@ public class GameSession {
         this.totalQuestions = totalQuestions;
         this.answeredQuestions = 0;
         this.correctAnswers = 0;
+        this.skippedAnswers = 0;
         this.score = 0;
         this.startedAt = Instant.now();
         this.status = SessionStatus.IN_PROGRESS;
@@ -33,13 +35,14 @@ public class GameSession {
 
     // Constructor completo para rehidratar desde la base de datos
     public GameSession(UUID id, UUID playerId, String subject, int totalQuestions, int answeredQuestions,
-                       int correctAnswers, int score, Instant startedAt, Instant finishedAt, SessionStatus status) {
+                       int correctAnswers, int skippedAnswers, int score, Instant startedAt, Instant finishedAt, SessionStatus status) {
         this.id = id;
         this.playerId = playerId;
         this.subject = subject;
         this.totalQuestions = totalQuestions;
         this.answeredQuestions = answeredQuestions;
         this.correctAnswers = correctAnswers;
+        this.skippedAnswers = skippedAnswers;
         this.score = score;
         this.startedAt = startedAt;
         this.finishedAt = finishedAt;
@@ -53,6 +56,11 @@ public class GameSession {
     }
 
     public void registerIncorrectAnswer() {
+        this.answeredQuestions++;
+    }
+
+    public void registerSkippedAnswer() {
+        this.skippedAnswers++;
         this.answeredQuestions++;
     }
 
@@ -77,7 +85,7 @@ public class GameSession {
         double questionValue = 10.0 / totalQuestions;
         double penaltyValue = questionValue / 3.0;
         
-        int incorrectAnswers = answeredQuestions - correctAnswers;
+        int incorrectAnswers = answeredQuestions - correctAnswers - skippedAnswers;
         
         double rawGrade = (correctAnswers * questionValue) - (incorrectAnswers * penaltyValue);
         
@@ -103,6 +111,8 @@ public class GameSession {
     public int getAnsweredQuestions() {return answeredQuestions;}
 
     public int getCorrectAnswers() {return correctAnswers;}
+
+    public int getSkippedAnswers() {return skippedAnswers;}
 
     public int getScore() {return score;}
 

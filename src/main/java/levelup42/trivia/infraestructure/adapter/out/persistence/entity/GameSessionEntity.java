@@ -21,6 +21,10 @@ public class GameSessionEntity {
     private int totalQuestions;
     private int answeredQuestions;
     private int correctAnswers;
+
+    @jakarta.persistence.Column(nullable = false, columnDefinition = "integer default 0")
+    private int skippedAnswers;
+
     private int score;
 
     private Instant startedAt;
@@ -39,6 +43,7 @@ public class GameSessionEntity {
         this.totalQuestions = totalQuestions;
         this.answeredQuestions = 0;
         this.correctAnswers = 0;
+        this.skippedAnswers = 0;
         this.score = 0;
         this.startedAt = Instant.now();
         this.status = SessionStatus.IN_PROGRESS;
@@ -46,13 +51,14 @@ public class GameSessionEntity {
 
     // Constructor completo para el mapper
     public GameSessionEntity(UUID id, UUID playerId, String subject, int totalQuestions, int answeredQuestions,
-                             int correctAnswers, int score, Instant startedAt, Instant finishedAt, SessionStatus status) {
+                             int correctAnswers, int skippedAnswers, int score, Instant startedAt, Instant finishedAt, SessionStatus status) {
         this.id = id;
         this.playerId = playerId;
         this.subject = subject;
         this.totalQuestions = totalQuestions;
         this.answeredQuestions = answeredQuestions;
         this.correctAnswers = correctAnswers;
+        this.skippedAnswers = skippedAnswers;
         this.score = score;
         this.startedAt = startedAt;
         this.finishedAt = finishedAt;
@@ -66,6 +72,11 @@ public class GameSessionEntity {
     }
 
     public void registerIncorrectAnswer() {
+        this.answeredQuestions++;
+    }
+
+    public void registerSkippedAnswer() {
+        this.skippedAnswers++;
         this.answeredQuestions++;
     }
 
@@ -91,6 +102,8 @@ public class GameSessionEntity {
     public int getAnsweredQuestions() {return answeredQuestions;}
 
     public int getCorrectAnswers() {return correctAnswers;}
+
+    public int getSkippedAnswers() {return skippedAnswers;}
 
     public int getScore() {return score;}
 

@@ -37,8 +37,12 @@ public class SubmitAnswerService implements SubmitAnswerUseCase {
         // 3. Evaluar respuesta
         String dbOption = question.getCorrectOption() != null ? question.getCorrectOption().trim() : "";
         boolean isCorrect = dbOption.equalsIgnoreCase(selectedOption.trim());
+        boolean isSkipped = "SKIP".equalsIgnoreCase(selectedOption.trim());
 
-        if (isCorrect) {
+        if (isSkipped) {
+            session.registerSkippedAnswer();
+            isCorrect = false;
+        } else if (isCorrect) {
             int points = 100;
             if (timeElapsedSeconds != null && timeElapsedSeconds > 3) {
                 points = 100 - ((timeElapsedSeconds - 3) * 10);
