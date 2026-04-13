@@ -68,6 +68,11 @@ public class GameSessionController {
         return getGameSessionUseCase.getLeaderboard().stream().map(GameSessionResponse::fromDomain).toList();
     }
 
+    @GetMapping("/leaderboard/weekly")
+    public List<GameSessionResponse> getWeeklyLeaderboard() {
+        return getGameSessionUseCase.getWeeklyLeaderboard().stream().map(GameSessionResponse::fromDomain).toList();
+    }
+
     @GetMapping("/{sessionId}/next-question")
     public org.springframework.http.ResponseEntity<levelup42.trivia.infraestructure.adapter.in.rest.dto.CurrentQuestionResponse> getNextQuestion(@PathVariable UUID sessionId) {
         return getNextQuestionUseCase.getNextQuestion(sessionId)

@@ -5,6 +5,9 @@ import levelup42.trivia.domain.port.in.gamesession.GetGameSessionUseCase;
 import levelup42.trivia.domain.port.out.GameSessionRepositoryPort;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,5 +34,22 @@ public class GetGameSessionService implements GetGameSessionUseCase {
     @Override
     public List<GameSession> getLeaderboard() {
         return sessionRepository.findAllFinishedOrderedByScoreDesc();
+    }
+
+    @Override
+    public List<GameSession> getWeeklyLeaderboard() {
+        // Zona horaria Madrid (Europa/Madrid = UTC+1 en invierno, UTC+2 en verano)
+        ZoneId madridZone = ZoneId.of("Europe/Madrid");
+        LocalDate today = LocalDate.now(madridZone);
+        
+        // Calcular el lunes de esta semana (DayOfWeek.MONDAY = 1)
+        LocalDate monday = today.minusDays(today.getDayOfWeek().getValue() - 1);
+        LocalDate sunday = monday.plusDays(6);
+        
+        // Convertir a Instant (inicio del lunes y fin del domingo)
+        Instant weekStart = monday.atStartOfDay(madridZone).toInstant();
+        Instant weekEnd = sunday.plusDays(1).atStartOfDay(madridZone).toInstant();
+        
+        return sessionRepository.findWeeklyLeaderboard(weekStart, weekEnd);
     }
 }

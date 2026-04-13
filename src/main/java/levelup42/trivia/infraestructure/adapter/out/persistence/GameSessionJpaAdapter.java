@@ -55,6 +55,13 @@ public class GameSessionJpaAdapter implements GameSessionRepositoryPort {
     }
 
     @Override
+    public List<GameSession> findWeeklyLeaderboard(java.time.Instant weekStart, java.time.Instant weekEnd) {
+        return repository.findWeeklyLeaderboard(SessionStatus.FINISHED, weekStart, weekEnd).stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<Long> findAskedQuestionIdsBySessionId(UUID sessionId) {
         return questionSessionRepository.findAskedQuestionIdsBySessionId(sessionId);
     }

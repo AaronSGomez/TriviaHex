@@ -1,8 +1,16 @@
+server:
+  port: 8080
+  # 1. ELIMINADOR DEL 403: 
+  # Permite que Spring procese X-Forwarded-Proto y X-Forwarded-For.
+  forward-headers-strategy: framework
+
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/trivia
-    username: trivia_user
-    password: supersecret
+    # 2. CONEXIÓN DOCKER: 
+    # Cambiado localhost -> postgres (ajusta si tu servicio se llama distinto)
+    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:trivia}
+    username: ${DB_USER:trivia_user}
+    password: ${DB_PASSWORD:supersecret}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -14,9 +22,17 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
+# 3. DOCUMENTACIÓN API
 springdoc:
   api-docs:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
     operationsSorter: method
+
+# 4. LOGGING PARA DEPURACIÓN
+# Si el 403 persiste, esto nos dirá qué filtro de seguridad está bloqueando
+logging:
+  level:
+    org.springframework.security: INFO
+    org.springframework.web: INFO
