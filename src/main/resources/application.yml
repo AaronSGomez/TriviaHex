@@ -3,6 +3,15 @@ server:
   # 1. ELIMINADOR DEL 403: 
   # Permite que Spring procese X-Forwarded-Proto y X-Forwarded-For.
   forward-headers-strategy: framework
+  tomcat:
+    accesslog:
+      enabled: true
+      directory: logs
+      prefix: access
+      suffix: .log
+      file-date-format: .yyyy-MM-dd
+      # method + path + status + bytes + tiempo (microsegundos) + UA + X-Forwarded-For
+      pattern: '%h %l %u %t "%r" %s %b %D "%{User-Agent}i" "%{X-Forwarded-For}i"'
 
 spring:
   datasource:
@@ -16,11 +25,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
+        format_sql: false
 
 # 3. DOCUMENTACIÓN API
 springdoc:
@@ -30,9 +39,14 @@ springdoc:
     path: /swagger-ui.html
     operationsSorter: method
 
-# 4. LOGGING PARA DEPURACIÓN
-# Si el 403 persiste, esto nos dirá qué filtro de seguridad está bloqueando
+# 4. LOGGING OPTIMIZADO
+# Solo errores y warnings críticos, sin spam de queries
 logging:
   level:
-    org.springframework.security: INFO
+    root: WARN
+    levelup42.trivia: INFO
+    com.zaxxer.hikari: WARN
+    org.springframework.security: WARN
+    org.springframework.boot.web: WARN
     org.springframework.web: INFO
+    org.hibernate: WARN

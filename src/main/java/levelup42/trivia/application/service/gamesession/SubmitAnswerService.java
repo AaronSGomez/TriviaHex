@@ -54,8 +54,6 @@ public class SubmitAnswerService implements SubmitAnswerUseCase {
         }
 
         sessionRepository.save(session);
-        // Register the question as asked for this session
-        sessionRepository.registerAskedQuestion(sessionId, questionId);
 
         return new AnswerResult(
                 isCorrect,
