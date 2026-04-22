@@ -50,3 +50,11 @@ logging:
     org.springframework.boot.web: WARN
     org.springframework.web: INFO
     org.hibernate: WARN
+
+application:
+  security:
+    google:
+      # Client IDs permitidos para validar el idToken de Google.
+      # Define GOOGLE_ALLOWED_AUDIENCES con una lista separada por comas.
+      # Ejemplo: 123.apps.googleusercontent.com,456.apps.googleusercontent.com
+      allowed-audiences: ${GOOGLE_ALLOWED_AUDIENCES:}

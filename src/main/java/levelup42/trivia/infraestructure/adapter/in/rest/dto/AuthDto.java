@@ -30,6 +30,14 @@ public class AuthDto {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class GoogleAuthRequest {
+        private String idToken;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class AuthenticationResponse {
         private String token;
         private java.util.UUID id;

@@ -5,6 +5,7 @@ import levelup42.trivia.domain.model.Player;
 import levelup42.trivia.domain.port.in.auth.AuthUseCase;
 import levelup42.trivia.domain.port.out.PlayerRepositoryPort;
 import levelup42.trivia.infraestructure.adapter.in.rest.dto.AuthDto.AuthenticationResponse;
+import levelup42.trivia.infraestructure.adapter.in.rest.dto.AuthDto.GoogleAuthRequest;
 import levelup42.trivia.infraestructure.adapter.in.rest.dto.AuthDto.LoginRequest;
 import levelup42.trivia.infraestructure.adapter.in.rest.dto.AuthDto.RegisterRequest;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +58,19 @@ public class AuthController {
         Player player = playerRepositoryPort.findByMail(request.getMail()).orElseThrow();
         return ResponseEntity.ok(AuthenticationResponse.builder()
                 .token(token)
+                .id(player.getId())
+                .name(player.getName())
+                .mail(player.getMail())
+                .build());
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<AuthenticationResponse> googleLogin(@Valid @RequestBody GoogleAuthRequest request) {
+        var authenticated = authUseCase.loginWithGoogle(request.getIdToken());
+        var player = authenticated.player();
+
+        return ResponseEntity.ok(AuthenticationResponse.builder()
+                .token(authenticated.token())
                 .id(player.getId())
                 .name(player.getName())
                 .mail(player.getMail())

@@ -5,12 +5,16 @@ import levelup42.trivia.domain.model.Question;
 import levelup42.trivia.domain.port.in.gamesession.SubmitAnswerUseCase;
 import levelup42.trivia.domain.port.out.GameSessionRepositoryPort;
 import levelup42.trivia.domain.port.out.QuestionRepositoryPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
 public class SubmitAnswerService implements SubmitAnswerUseCase {
+
+    private static final Logger log = LoggerFactory.getLogger(SubmitAnswerService.class);
 
     private final GameSessionRepositoryPort sessionRepository;
     private final QuestionRepositoryPort questionRepository;
@@ -54,6 +58,17 @@ public class SubmitAnswerService implements SubmitAnswerUseCase {
         }
 
         sessionRepository.save(session);
+
+        log.info(
+            "answer_processed sessionId={} questionId={} correct={} skipped={} score={} finished={} elapsedSeconds={}",
+            sessionId,
+            questionId,
+            isCorrect,
+            isSkipped,
+            session.getScore(),
+            session.isFinished(),
+            timeElapsedSeconds
+        );
 
         return new AnswerResult(
                 isCorrect,
