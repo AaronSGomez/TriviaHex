@@ -50,6 +50,10 @@ public class FirebaseTokenVerifierService {
         } catch (FirebaseAuthException ex) {
             log.warn("firebase_token_verification_failed reason={}", ex.getMessage());
             return Optional.empty();
+        } catch (Exception ex) {
+            // Avoid surfacing transient Firebase SDK/runtime failures as HTTP 500 in auth flow.
+            log.warn("firebase_token_verification_runtime_failure type={} reason={}", ex.getClass().getSimpleName(), ex.getMessage());
+            return Optional.empty();
         }
     }
 

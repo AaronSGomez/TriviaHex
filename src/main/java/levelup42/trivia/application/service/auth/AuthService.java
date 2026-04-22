@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -107,7 +108,7 @@ public class AuthService implements AuthUseCase {
     private AuthenticatedPlayer createOrUpdatePlayer(String email, String name) {
         Player player = playerRepositoryPort.findByMail(email)
                 .map(existing -> {
-                    if (!existing.getName().equals(name)) {
+                    if (!Objects.equals(existing.getName(), name)) {
                         Player updated = new Player(
                                 existing.getId(),
                                 name,

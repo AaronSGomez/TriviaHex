@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Initializes Firebase Admin SDK for token verification and other Firebase operations.
@@ -44,6 +46,24 @@ public class FirebaseConfig {
 
         if (credPath == null || credPath.isBlank()) {
             log.warn("Firebase credentials not configured. Set GOOGLE_APPLICATION_CREDENTIALS or firebase.credentials-path");
+            return;
+        }
+
+        Path path = Path.of(credPath);
+        if (Files.isDirectory(path)) {
+            Path candidate = path.resolve("firebase.json");
+            if (Files.isRegularFile(candidate)) {
+                path = candidate;
+                credPath = candidate.toString();
+                log.warn("firebase_credentials_path_was_directory using_file={}", credPath);
+            } else {
+                log.warn("firebase_credentials_path_is_directory_without_file path={} expected_file={}", path, candidate);
+                return;
+            }
+        }
+
+        if (!Files.isRegularFile(path)) {
+            log.warn("firebase_credentials_file_not_found path={}", path);
             return;
         }
 
