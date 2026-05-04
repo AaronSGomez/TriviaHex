@@ -42,13 +42,60 @@ public class GetNextQuestionService implements GetNextQuestionUseCase {
         // 2. Obtener las IDs de preguntas ya respondidas en esta sesión
         List<Long> askedQuestionIds = sessionRepository.findAskedQuestionIdsBySessionId(sessionId);
 
-        // 3. Buscar una pregunta aleatoria de la categoría que NO esté en la lista de respondidas
-        Optional<Question> nextQuestion;
-        if (askedQuestionIds.isEmpty()) {
-            // Si es la primera pregunta de la sesión, no pasamos la lista vacía al IN de SQL (puede dar error de sintaxis en algunos DB engines)
-             nextQuestion = questionRepository.findRandomBySubject(session.getSubject());
+        // 3. Buscar una pregunta según tipo de sesión
+        Optional<Question> nextQuestion = Optional.empty();
+
+        // Prepare exclusion list starting with already asked questions
+        java.util.List<Long> excludedIds = new java.util.ArrayList<>(askedQuestionIds);
+
+        if (session.getSessionType() == levelup42.trivia.domain.model.SessionType.REVIEW) {
+            // Preferir preguntas falladas por el usuario en esta asignatura (más recientes primero)
+            java.util.List<Long> failedIds = sessionRepository.findFailedQuestionIdsByPlayerAndSubject(session.getPlayerId(), session.getSubject());
+            // pick first failed not yet asked
+            for (Long qid : failedIds) {
+                if (!excludedIds.contains(qid)) {
+                    nextQuestion = questionRepository.findById(qid);
+                    if (nextQuestion.isPresent()) break;
+                }
+            }
         } else {
-             nextQuestion = questionRepository.findRandomUnansweredBySubject(session.getSubject(), askedQuestionIds);
+            // NORMAL session: use dynamic 96h window strategy based on pool size
+            // Get total questions available in this subject
+            long totalQuestionsInSubject = questionRepository.countBySubject(session.getSubject());
+            
+            // Calculate how many questions have been asked in the last 96 hours
+            java.time.Instant since = java.time.Instant.now().minus(java.time.Duration.ofHours(96));
+            long recentAskedCount = sessionRepository.countAskedByPlayerAndSubjectSince(
+                session.getPlayerId(), 
+                session.getSubject(), 
+                since
+            );
+            
+            // Dynamic threshold: if 80% or more of pool is excluded, disable 96h window
+            // to allow continuing play without running out of questions
+            double exclusionRatio = totalQuestionsInSubject > 0 ? (double) recentAskedCount / totalQuestionsInSubject : 0;
+            
+            if (exclusionRatio < 0.80) {
+                // Apply 96h window - we have enough diversity
+                java.util.List<Long> recentAsked = sessionRepository.findAskedQuestionIdsByPlayerAndSubjectSince(
+                    session.getPlayerId(), 
+                    session.getSubject(), 
+                    since
+                );
+                if (recentAsked != null && !recentAsked.isEmpty()) {
+                    for (Long id : recentAsked) if (!excludedIds.contains(id)) excludedIds.add(id);
+                }
+            }
+            // If exclusionRatio >= 0.80: skip adding recent to excludedIds (allow repetition)
+        }
+
+        // If still no nextQuestion (either NORMAL fallback or REVIEW had none), pick random excluding excludedIds
+        if (nextQuestion.isEmpty()) {
+            if (excludedIds.isEmpty()) {
+                nextQuestion = questionRepository.findRandomBySubject(session.getSubject());
+            } else {
+                nextQuestion = questionRepository.findRandomUnansweredBySubject(session.getSubject(), excludedIds);
+            }
         }
 
         // 4. Si encontramos una pregunta, la registramos como preguntada en esta sesión para que no se repita

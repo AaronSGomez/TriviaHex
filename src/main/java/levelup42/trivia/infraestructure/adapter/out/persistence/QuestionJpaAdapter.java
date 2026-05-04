@@ -55,4 +55,9 @@ public class QuestionJpaAdapter implements QuestionRepositoryPort {
     public Optional<Question> findRandomBySubject(String subject) {
         return repository.findRandomBySubject(subject).map(mapper::toDomain);
     }
+
+    @Override
+    public long countBySubject(String subject) {
+        return repository.countBySubject(subject);
+    }
 }

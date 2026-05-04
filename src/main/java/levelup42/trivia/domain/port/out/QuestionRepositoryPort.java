@@ -14,5 +14,11 @@ public interface QuestionRepositoryPort {
 
     Optional<Question> findRandomUnansweredBySubject(String subject, List<Long> askedIds);
     Optional<Question> findRandomBySubject(String subject);
+    
+    /**
+     * Returns the total count of questions for a given subject.
+     * Used to dynamically adjust 96h window strategy based on pool size.
+     */
+    long countBySubject(String subject);
 
 }

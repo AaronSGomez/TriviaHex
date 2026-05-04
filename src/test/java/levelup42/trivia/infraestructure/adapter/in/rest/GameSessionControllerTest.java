@@ -64,7 +64,7 @@ class GameSessionControllerTest {
                 .build();
         playerId = UUID.randomUUID();
         sessionId = UUID.randomUUID();
-        mockSession = new GameSession(sessionId, playerId, "History", 5);
+        mockSession = new GameSession(sessionId, playerId, "Desarrollo de Interfaces", 5);
     }
 
     @Test
@@ -73,7 +73,7 @@ class GameSessionControllerTest {
         when(startGameSessionUseCase.createSession(any(UUID.class), any(String.class), any(Integer.class)))
                 .thenReturn(mockSession);
 
-        String requestJson = String.format("{\"playerId\":\"%s\",\"subject\":\"History\",\"totalQuestions\":5}", playerId.toString());
+        String requestJson = String.format("{\"playerId\":\"%s\",\"subject\":\"Desarrollo de Interfaces\",\"totalQuestions\":5}", playerId.toString());
 
         // Act & Assert
         mockMvc.perform(post("/api/v1/session")
@@ -82,7 +82,7 @@ class GameSessionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(sessionId.toString()))
                 .andExpect(jsonPath("$.playerId").value(playerId.toString()))
-                .andExpect(jsonPath("$.subject").value("History"))
+                .andExpect(jsonPath("$.subject").value("Desarrollo de Interfaces"))
                 .andExpect(jsonPath("$.totalQuestions").value(5))
                 .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
     }
@@ -135,7 +135,7 @@ class GameSessionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(sessionId.toString()))
                 .andExpect(jsonPath("$.playerId").value(playerId.toString()))
-                .andExpect(jsonPath("$.subject").value("History"))
+                .andExpect(jsonPath("$.subject").value("Desarrollo de Interfaces"))
                 .andExpect(jsonPath("$.totalQuestions").value(5))
                 .andExpect(jsonPath("$.status").value("IN_PROGRESS"))
                 .andExpect(jsonPath("$.grade").value(0.0))

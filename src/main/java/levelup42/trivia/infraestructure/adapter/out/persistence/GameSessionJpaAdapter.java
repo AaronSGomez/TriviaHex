@@ -43,23 +43,42 @@ public class GameSessionJpaAdapter implements GameSessionRepositoryPort {
     @Override
     public List<GameSession> findByPlayerId(UUID playerId) {
         return repository.findByPlayerId(playerId).stream()
-                .map(mapper::toDomain)
+            .map(this::toDomainFromLegacyRow)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<GameSession> findAllFinishedOrderedByScoreDesc() {
-        return repository.findAllByStatusOrderByScoreDesc(SessionStatus.FINISHED).stream()
-                .map(mapper::toDomain)
+        return repository.findAllByStatusOrderByScoreDesc(SessionStatus.FINISHED.ordinal()).stream()
+            .map(this::toDomainFromLegacyRow)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<GameSession> findWeeklyLeaderboard(java.time.Instant weekStart, java.time.Instant weekEnd) {
-        return repository.findWeeklyLeaderboard(SessionStatus.FINISHED, weekStart, weekEnd).stream()
-                .map(mapper::toDomain)
+        return repository.findWeeklyLeaderboard(SessionStatus.FINISHED.ordinal(), weekStart, weekEnd).stream()
+            .map(this::toDomainFromLegacyRow)
                 .collect(Collectors.toList());
     }
+
+        private GameSession toDomainFromLegacyRow(DataGameSessionRepository.LegacyGameSessionRow row) {
+        GameSession session = new GameSession(
+            row.getId(),
+            row.getPlayerId(),
+            row.getSubject(),
+            row.getTotalQuestions() != null ? row.getTotalQuestions() : 0,
+            row.getAnsweredQuestions() != null ? row.getAnsweredQuestions() : 0,
+            row.getCorrectAnswers() != null ? row.getCorrectAnswers() : 0,
+            row.getSkippedAnswers() != null ? row.getSkippedAnswers() : 0,
+            row.getScore() != null ? row.getScore() : 0,
+            row.getStartedAt(),
+            row.getFinishedAt(),
+                row.getStatus() != null && row.getStatus() == SessionStatus.FINISHED.ordinal()
+                    ? SessionStatus.FINISHED
+                    : SessionStatus.IN_PROGRESS
+        );
+        return session;
+        }
 
     @Override
     public List<Long> findAskedQuestionIdsBySessionId(UUID sessionId) {
@@ -70,5 +89,41 @@ public class GameSessionJpaAdapter implements GameSessionRepositoryPort {
     public void registerAskedQuestion(UUID sessionId, Long questionId) {
         GameSessionQuestionEntity entity = new GameSessionQuestionEntity(sessionId, questionId);
         questionSessionRepository.save(entity);
+    }
+
+    @Override
+    public List<Long> findFailedQuestionIdsByPlayerAndSubject(UUID playerId, String subject) {
+        return questionSessionRepository.findFailedQuestionIdsByPlayerAndSubject(playerId, subject);
+    }
+
+    @Override
+    public List<Long> findCorrectQuestionIdsByPlayerAndSubjectSince(UUID playerId, String subject, java.time.Instant since) {
+        return questionSessionRepository.findCorrectQuestionIdsByPlayerAndSubjectSince(playerId, subject, since);
+    }
+
+    @Override
+    public List<Long> findAskedQuestionIdsByPlayerAndSubjectSince(UUID playerId, String subject, java.time.Instant since) {
+        return questionSessionRepository.findAskedQuestionIdsByPlayerAndSubjectSince(playerId, subject, since);
+    }
+
+    @Override
+    public void registerAnswerResult(UUID sessionId, Long questionId, boolean correct, java.time.Instant answeredAt) {
+        java.util.Optional<GameSessionQuestionEntity> opt = questionSessionRepository.findBySessionIdAndQuestionId(sessionId, questionId);
+        if (opt.isPresent()) {
+            GameSessionQuestionEntity entity = opt.get();
+            entity.setCorrect(correct);
+            entity.setAnsweredAt(answeredAt);
+            questionSessionRepository.save(entity);
+        } else {
+            GameSessionQuestionEntity entity = new GameSessionQuestionEntity(sessionId, questionId);
+            entity.setCorrect(correct);
+            entity.setAnsweredAt(answeredAt);
+            questionSessionRepository.save(entity);
+        }
+    }
+
+    @Override
+    public long countAskedByPlayerAndSubjectSince(UUID playerId, String subject, java.time.Instant since) {
+        return questionSessionRepository.countAskedByPlayerAndSubjectSince(playerId, subject, since);
     }
 }

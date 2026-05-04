@@ -58,6 +58,12 @@ public class SubmitAnswerService implements SubmitAnswerUseCase {
         }
 
         sessionRepository.save(session);
+        // Persist per-question answer result for future Review selection
+        try {
+            sessionRepository.registerAnswerResult(sessionId, questionId, isCorrect, java.time.Instant.now());
+        } catch (Exception e) {
+            log.warn("Could not register answer result for session {} question {}: {}", sessionId, questionId, e.getMessage());
+        }
 
         log.info(
             "answer_processed sessionId={} questionId={} correct={} skipped={} score={} finished={} elapsedSeconds={}",

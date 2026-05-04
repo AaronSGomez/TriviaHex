@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import levelup42.trivia.domain.model.SessionStatus;
+import levelup42.trivia.domain.model.SessionType;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -31,6 +32,8 @@ public class GameSessionEntity {
     private Instant finishedAt;
 
     private SessionStatus status;
+    private int testCycleIndex;
+    private SessionType sessionType;
 
     // JPA requiere constructor por defecto
     public GameSessionEntity() {
@@ -47,6 +50,8 @@ public class GameSessionEntity {
         this.score = 0;
         this.startedAt = Instant.now();
         this.status = SessionStatus.IN_PROGRESS;
+        this.testCycleIndex = 1;
+        this.sessionType = SessionType.NORMAL;
     }
 
     // Constructor completo para el mapper
@@ -63,6 +68,8 @@ public class GameSessionEntity {
         this.startedAt = startedAt;
         this.finishedAt = finishedAt;
         this.status = status;
+        this.testCycleIndex = 1;
+        this.sessionType = SessionType.NORMAL;
     }
 
     public void registerCorrectAnswer() {
@@ -112,5 +119,13 @@ public class GameSessionEntity {
     public Instant getFinishedAt() {return finishedAt;}
 
     public SessionStatus getStatus() {return status;}
+
+    public int getTestCycleIndex() { return testCycleIndex; }
+
+    public void setTestCycleIndex(int testCycleIndex) { this.testCycleIndex = testCycleIndex; }
+
+    public SessionType getSessionType() { return sessionType; }
+
+    public void setSessionType(SessionType sessionType) { this.sessionType = sessionType; }
 
 }

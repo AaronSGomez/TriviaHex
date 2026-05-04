@@ -16,4 +16,7 @@ public interface DataQuestionRepository extends JpaRepository<QuestionEntity, Lo
 
     @Query(value = "SELECT * FROM question q WHERE q.subject = :subject AND q.active = true ORDER BY RANDOM() LIMIT 1", nativeQuery = true)
     Optional<QuestionEntity> findRandomBySubject(@Param("subject") String subject);
+
+    @Query("SELECT COUNT(q) FROM QuestionEntity q WHERE q.subject = :subject AND q.active = true")
+    long countBySubject(@Param("subject") String subject);
 }

@@ -10,20 +10,29 @@ public class QuestionEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 2000)
     private String statement;
 
+    @Column(length = 500)
     private String optionA;
+    @Column(length = 500)
     private String optionB;
+    @Column(length = 500)
     private String optionC;
+    @Column(length = 500)
     private String optionD;
 
+    @Column(length = 10)
     private String correctOption;
 
     @Column(length = 2000)
     private String explanation;
 
+    @Column(length = 200)
     private String subject;
+    @Column(length = 200)
     private String topic;
+    @Column(length = 50)
     private String difficulty;
 
     private boolean active = true;

@@ -24,12 +24,14 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
+
+  flyway:
+    enabled: true
 
 # 3. DOCUMENTACIÓN API
 springdoc:

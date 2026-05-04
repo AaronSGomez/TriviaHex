@@ -10,36 +10,42 @@ public class GameSessionMapper {
     public GameSessionEntity toEntity(GameSession domain) {
         if (domain == null) return null;
         
-        return new GameSessionEntity(
-                domain.getId(),
-                domain.getPlayerId(),
-                domain.getSubject(),
-                domain.getTotalQuestions(),
-                domain.getAnsweredQuestions(),
-                domain.getCorrectAnswers(),
-                domain.getSkippedAnswers(),
-                domain.getScore(),
-                domain.getStartedAt(),
-                domain.getFinishedAt(),
-                domain.getStatus()
+        GameSessionEntity entity = new GameSessionEntity(
+            domain.getId(),
+            domain.getPlayerId(),
+            domain.getSubject(),
+            domain.getTotalQuestions(),
+            domain.getAnsweredQuestions(),
+            domain.getCorrectAnswers(),
+            domain.getSkippedAnswers(),
+            domain.getScore(),
+            domain.getStartedAt(),
+            domain.getFinishedAt(),
+            domain.getStatus()
         );
+        entity.setTestCycleIndex(domain.getTestCycleIndex());
+        entity.setSessionType(domain.getSessionType());
+        return entity;
     }
 
     public GameSession toDomain(GameSessionEntity entity) {
         if (entity == null) return null;
         
-        return new GameSession(
-                entity.getId(),
-                entity.getPlayerId(),
-                entity.getSubject(),
-                entity.getTotalQuestions(),
-                entity.getAnsweredQuestions(),
-                entity.getCorrectAnswers(),
-                entity.getSkippedAnswers(),
-                entity.getScore(),
-                entity.getStartedAt(),
-                entity.getFinishedAt(),
-                entity.getStatus()
+        GameSession domain = new GameSession(
+            entity.getId(),
+            entity.getPlayerId(),
+            entity.getSubject(),
+            entity.getTotalQuestions(),
+            entity.getAnsweredQuestions(),
+            entity.getCorrectAnswers(),
+            entity.getSkippedAnswers(),
+            entity.getScore(),
+            entity.getStartedAt(),
+            entity.getFinishedAt(),
+            entity.getStatus()
         );
+        domain.setTestCycleIndex(entity.getTestCycleIndex());
+        domain.setSessionType(entity.getSessionType());
+        return domain;
     }
 }

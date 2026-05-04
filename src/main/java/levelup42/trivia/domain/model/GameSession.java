@@ -7,7 +7,9 @@ public class GameSession {
 
     private final UUID id;
     private final UUID playerId;
-    private final String subject;
+    private final Subject subject;
+    private int testCycleIndex = 1;
+    private SessionType sessionType = SessionType.NORMAL;
 
     private int totalQuestions;
     private int answeredQuestions;
@@ -23,7 +25,7 @@ public class GameSession {
     public GameSession(UUID id, UUID playerId, String subject, int totalQuestions) {
         this.id = id;
         this.playerId = playerId;
-        this.subject = subject;
+        this.subject = Subject.fromDisplayName(subject);
         this.totalQuestions = totalQuestions;
         this.answeredQuestions = 0;
         this.correctAnswers = 0;
@@ -38,7 +40,7 @@ public class GameSession {
                        int correctAnswers, int skippedAnswers, int score, Instant startedAt, Instant finishedAt, SessionStatus status) {
         this.id = id;
         this.playerId = playerId;
-        this.subject = subject;
+        this.subject = Subject.fromDisplayName(subject);
         this.totalQuestions = totalQuestions;
         this.answeredQuestions = answeredQuestions;
         this.correctAnswers = correctAnswers;
@@ -47,6 +49,20 @@ public class GameSession {
         this.startedAt = startedAt;
         this.finishedAt = finishedAt;
         this.status = status;
+    }
+
+    // New constructor accepting Subject directly
+    public GameSession(UUID id, UUID playerId, Subject subject, int totalQuestions) {
+        this.id = id;
+        this.playerId = playerId;
+        this.subject = subject;
+        this.totalQuestions = totalQuestions;
+        this.answeredQuestions = 0;
+        this.correctAnswers = 0;
+        this.skippedAnswers = 0;
+        this.score = 0;
+        this.startedAt = Instant.now();
+        this.status = SessionStatus.IN_PROGRESS;
     }
 
     public void registerCorrectAnswer(int points) {
@@ -104,7 +120,20 @@ public class GameSession {
 
     public UUID getPlayerId() {return playerId;}
 
-    public String getSubject() {return subject;}
+    /**
+     * Returns the subject display name to preserve existing API that expects a string.
+     */
+    public String getSubject() {return subject != null ? subject.getDisplayName() : null;}
+
+    public Subject getSubjectEnum() {return subject;}
+
+    public int getTestCycleIndex() { return testCycleIndex; }
+
+    public void setTestCycleIndex(int testCycleIndex) { this.testCycleIndex = testCycleIndex; }
+
+    public SessionType getSessionType() { return sessionType; }
+
+    public void setSessionType(SessionType sessionType) { this.sessionType = sessionType; }
 
     public int getTotalQuestions() {return totalQuestions;}
 

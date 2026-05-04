@@ -8,7 +8,9 @@ import levelup42.trivia.infraestructure.adapter.in.rest.dto.AuthDto.Authenticati
 import levelup42.trivia.infraestructure.adapter.in.rest.dto.AuthDto.GoogleAuthRequest;
 import levelup42.trivia.infraestructure.adapter.in.rest.dto.AuthDto.LoginRequest;
 import levelup42.trivia.infraestructure.adapter.in.rest.dto.AuthDto.RegisterRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,28 +30,12 @@ public class AuthController {
 
     @PostMapping("/register/admin")
     public ResponseEntity<AuthenticationResponse> registerAdmin(@RequestBody RegisterRequest request) {
-        Player player = authUseCase.register(request.getMail(),request.getName(), request.getPassword(), Player.Role.ADMIN);
-        // Automatically log them in after registration to return the token
-        String token = authUseCase.login(request.getMail(), request.getPassword());
-        return ResponseEntity.ok(AuthenticationResponse.builder()
-                .token(token)
-                .id(player.getId())
-                .name(player.getName())
-                .mail(player.getMail())
-                .build());
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Registro de administradores deshabilitado.");
     }
     
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> registerUser(@RequestBody RegisterRequest request) {
-        Player player = authUseCase.register(request.getMail(), request.getName(), request.getPassword(), Player.Role.USER);
-        // Automatically log them in after registration to return the token
-        String token = authUseCase.login(request.getMail(), request.getPassword());
-        return ResponseEntity.ok(AuthenticationResponse.builder()
-                .token(token)
-                .id(player.getId())
-                .name(player.getName())
-                .mail(player.getMail())
-                .build());
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Registro de usuarios deshabilitado. Usa autenticación Google/Firebase.");
     }
 
     @PostMapping("/login")
