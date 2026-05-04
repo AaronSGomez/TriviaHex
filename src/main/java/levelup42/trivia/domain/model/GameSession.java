@@ -7,6 +7,7 @@ public class GameSession {
 
     private final UUID id;
     private final UUID playerId;
+    private final String subjectName;
     private final Subject subject;
     private int testCycleIndex = 1;
     private SessionType sessionType = SessionType.NORMAL;
@@ -25,7 +26,8 @@ public class GameSession {
     public GameSession(UUID id, UUID playerId, String subject, int totalQuestions) {
         this.id = id;
         this.playerId = playerId;
-        this.subject = Subject.fromDisplayName(subject);
+        this.subjectName = normalizeSubjectName(subject);
+        this.subject = safeParseSubject(this.subjectName);
         this.totalQuestions = totalQuestions;
         this.answeredQuestions = 0;
         this.correctAnswers = 0;
@@ -40,7 +42,8 @@ public class GameSession {
                        int correctAnswers, int skippedAnswers, int score, Instant startedAt, Instant finishedAt, SessionStatus status) {
         this.id = id;
         this.playerId = playerId;
-        this.subject = Subject.fromDisplayName(subject);
+        this.subjectName = normalizeSubjectName(subject);
+        this.subject = safeParseSubject(this.subjectName);
         this.totalQuestions = totalQuestions;
         this.answeredQuestions = answeredQuestions;
         this.correctAnswers = correctAnswers;
@@ -56,6 +59,7 @@ public class GameSession {
         this.id = id;
         this.playerId = playerId;
         this.subject = subject;
+        this.subjectName = subject != null ? subject.getDisplayName() : null;
         this.totalQuestions = totalQuestions;
         this.answeredQuestions = 0;
         this.correctAnswers = 0;
@@ -123,7 +127,12 @@ public class GameSession {
     /**
      * Returns the subject display name to preserve existing API that expects a string.
      */
-    public String getSubject() {return subject != null ? subject.getDisplayName() : null;}
+    public String getSubject() {
+        if (subjectName != null) {
+            return subjectName;
+        }
+        return subject != null ? subject.getDisplayName() : null;
+    }
 
     public Subject getSubjectEnum() {return subject;}
 
@@ -150,5 +159,17 @@ public class GameSession {
     public Instant getFinishedAt() {return finishedAt;}
 
     public SessionStatus getStatus() {return status;}
+
+    private static String normalizeSubjectName(String subject) {
+        return subject == null ? null : subject.trim();
+    }
+
+    private static Subject safeParseSubject(String subjectName) {
+        try {
+            return Subject.fromDisplayName(subjectName);
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
+    }
 
 }
