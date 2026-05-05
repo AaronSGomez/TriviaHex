@@ -64,6 +64,15 @@ public class StartGameSessionService implements StartGameSessionUseCase {
         session.setTestCycleIndex(nextCycleIndex);
         session.setSessionType(nextSessionType);
 
+        if (nextSessionType == levelup42.trivia.domain.model.SessionType.REVIEW) {
+            try {
+                java.util.List<Long> failedIds = sessionRepository.findFailedQuestionIdsByPlayerAndSubject(playerId, subject);
+                session.setReviewQuestionCount(failedIds.size());
+            } catch (Exception e) {
+                log.warn("Could not determine review question count for player {} subject {}: {}", playerId, subject, e.getMessage());
+            }
+        }
+
         GameSession createdSession = sessionRepository.save(session);
         log.info("session_started sessionId={} playerId={} subject={} totalQuestions={} cycle={} type={}", createdSession.getId(), playerId, subject, totalQuestions, nextCycleIndex, nextSessionType);
         return createdSession;

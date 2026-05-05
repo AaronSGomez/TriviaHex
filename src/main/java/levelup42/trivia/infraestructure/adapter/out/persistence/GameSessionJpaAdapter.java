@@ -77,6 +77,15 @@ public class GameSessionJpaAdapter implements GameSessionRepositoryPort {
                     ? SessionStatus.FINISHED
                     : SessionStatus.IN_PROGRESS
         );
+        session.setTestCycleIndex(row.getTestCycleIndex() != null ? row.getTestCycleIndex() : 1);
+        try {
+            session.setSessionType(row.getSessionType() != null 
+                ? levelup42.trivia.domain.model.SessionType.valueOf(row.getSessionType()) 
+                : levelup42.trivia.domain.model.SessionType.NORMAL);
+        } catch (Exception e) {
+            session.setSessionType(levelup42.trivia.domain.model.SessionType.NORMAL);
+        }
+        session.setReviewQuestionCount(row.getReviewQuestionCount());
         return session;
         }
 

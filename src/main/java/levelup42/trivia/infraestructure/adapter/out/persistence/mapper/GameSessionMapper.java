@@ -25,6 +25,7 @@ public class GameSessionMapper {
         );
         entity.setTestCycleIndex(domain.getTestCycleIndex());
         entity.setSessionType(domain.getSessionType());
+        entity.setReviewQuestionCount(domain.getReviewQuestionCount());
         return entity;
     }
 
@@ -46,6 +47,7 @@ public class GameSessionMapper {
         );
         domain.setTestCycleIndex(entity.getTestCycleIndex());
         domain.setSessionType(entity.getSessionType());
+        domain.setReviewQuestionCount(entity.getReviewQuestionCount());
         return domain;
     }
 }

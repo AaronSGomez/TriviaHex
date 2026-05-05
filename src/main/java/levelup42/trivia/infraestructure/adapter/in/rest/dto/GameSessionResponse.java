@@ -18,10 +18,12 @@ public class GameSessionResponse {
     private final String status; // Simplificamos el enum a String para el JSON
     private final double grade;
     private final boolean isPassed;
+    private final String sessionType;
+    private final Integer reviewQuestionCount;
 
     public GameSessionResponse(UUID id, UUID playerId, String subject, int totalQuestions, int answeredQuestions, 
                                int correctAnswers, int score, Instant startedAt, Instant finishedAt, String status, 
-                               double grade, boolean isPassed) {
+                                double grade, boolean isPassed, String sessionType, Integer reviewQuestionCount) {
         this.id = id;
         this.playerId = playerId;
         this.subject = subject;
@@ -34,6 +36,8 @@ public class GameSessionResponse {
         this.status = status;
         this.grade = grade;
         this.isPassed = isPassed;
+        this.sessionType = sessionType;
+        this.reviewQuestionCount = reviewQuestionCount;
     }
 
     public static GameSessionResponse fromDomain(GameSession session) {
@@ -49,7 +53,9 @@ public class GameSessionResponse {
                 session.getFinishedAt(),
                 session.getStatus().name(),
                 session.getGrade(),
-                session.isPassed()
+                session.isPassed(),
+                session.getSessionType() != null ? session.getSessionType().name() : null,
+                session.getReviewQuestionCount()
         );
     }
 
@@ -65,4 +71,6 @@ public class GameSessionResponse {
     public String getStatus() { return status; }
     public double getGrade() { return grade; }
     public boolean isPassed() { return isPassed; }
+    public String getSessionType() { return sessionType; }
+    public Integer getReviewQuestionCount() { return reviewQuestionCount; }
 }

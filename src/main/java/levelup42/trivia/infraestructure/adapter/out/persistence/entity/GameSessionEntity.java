@@ -27,13 +27,19 @@ public class GameSessionEntity {
     private int skippedAnswers;
 
     private int score;
+    private Integer reviewQuestionCount;
 
     private Instant startedAt;
     private Instant finishedAt;
 
     private SessionStatus status;
+
+    @jakarta.persistence.Column(name = "test_cycle_index", nullable = false, columnDefinition = "integer default 1")
     private int testCycleIndex;
-    private SessionType sessionType;
+
+    @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
+    @jakarta.persistence.Column(name = "session_type", nullable = false, length = 20, columnDefinition = "varchar(20) default 'NORMAL'")
+    private levelup42.trivia.domain.model.SessionType sessionType;
 
     // JPA requiere constructor por defecto
     public GameSessionEntity() {
@@ -128,4 +134,7 @@ public class GameSessionEntity {
 
     public void setSessionType(SessionType sessionType) { this.sessionType = sessionType; }
 
-}
+    public Integer getReviewQuestionCount() { return reviewQuestionCount; }
+
+    public void setReviewQuestionCount(Integer reviewQuestionCount) { this.reviewQuestionCount = reviewQuestionCount; }
+}

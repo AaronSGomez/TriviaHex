@@ -25,30 +25,37 @@ public interface DataGameSessionRepository extends JpaRepository<GameSessionEnti
         Instant getStartedAt();
         Instant getFinishedAt();
         Integer getStatus();
+        Integer getTestCycleIndex();
+        String getSessionType();
+        Integer getReviewQuestionCount();
     }
 
     @Query(value = "SELECT id, player_id AS playerId, subject, total_questions AS totalQuestions, " +
         "answered_questions AS answeredQuestions, correct_answers AS correctAnswers, skipped_answers AS skippedAnswers, " +
-        "score, started_at AS startedAt, finished_at AS finishedAt, status " +
-            "FROM gamesession WHERE subject = :subject AND status = :status", nativeQuery = true)
+        "score, started_at AS startedAt, finished_at AS finishedAt, status, " +
+        "test_cycle_index AS testCycleIndex, session_type AS sessionType, review_question_count AS reviewQuestionCount " +
+            "FROM gamesession WHERE subject = :subject AND status = CAST(:status AS integer)", nativeQuery = true)
         List<LegacyGameSessionRow> findBySubjectAndStatus(@Param("subject") String subject, @Param("status") int status);
 
     @Query(value = "SELECT id, player_id AS playerId, subject, total_questions AS totalQuestions, " +
         "answered_questions AS answeredQuestions, correct_answers AS correctAnswers, skipped_answers AS skippedAnswers, " +
-        "score, started_at AS startedAt, finished_at AS finishedAt, status " +
+        "score, started_at AS startedAt, finished_at AS finishedAt, status, " +
+        "test_cycle_index AS testCycleIndex, session_type AS sessionType, review_question_count AS reviewQuestionCount " +
         "FROM gamesession WHERE player_id = :playerId", nativeQuery = true)
     List<LegacyGameSessionRow> findByPlayerId(@Param("playerId") UUID playerId);
 
     @Query(value = "SELECT id, player_id AS playerId, subject, total_questions AS totalQuestions, " +
         "answered_questions AS answeredQuestions, correct_answers AS correctAnswers, skipped_answers AS skippedAnswers, " +
-        "score, started_at AS startedAt, finished_at AS finishedAt, status " +
-            "FROM gamesession WHERE status = :status ORDER BY score DESC", nativeQuery = true)
+        "score, started_at AS startedAt, finished_at AS finishedAt, status, " +
+        "test_cycle_index AS testCycleIndex, session_type AS sessionType, review_question_count AS reviewQuestionCount " +
+            "FROM gamesession WHERE status = CAST(:status AS integer) ORDER BY score DESC", nativeQuery = true)
         List<LegacyGameSessionRow> findAllByStatusOrderByScoreDesc(@Param("status") int status);
 
     @Query(value = "SELECT id, player_id AS playerId, subject, total_questions AS totalQuestions, " +
         "answered_questions AS answeredQuestions, correct_answers AS correctAnswers, skipped_answers AS skippedAnswers, " +
-        "score, started_at AS startedAt, finished_at AS finishedAt, status " +
-            "FROM gamesession WHERE status = :status AND finished_at >= :weekStart AND finished_at < :weekEnd ORDER BY score DESC", nativeQuery = true)
+        "score, started_at AS startedAt, finished_at AS finishedAt, status, " +
+        "test_cycle_index AS testCycleIndex, session_type AS sessionType, review_question_count AS reviewQuestionCount " +
+            "FROM gamesession WHERE status = CAST(:status AS integer) AND finished_at >= CAST(:weekStart AS timestamp) AND finished_at < CAST(:weekEnd AS timestamp) ORDER BY score DESC", nativeQuery = true)
         List<LegacyGameSessionRow> findWeeklyLeaderboard(@Param("status") int status,
                   @Param("weekStart") Instant weekStart,
                   @Param("weekEnd") Instant weekEnd);

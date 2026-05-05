@@ -11,6 +11,7 @@ public class GameSession {
     private final Subject subject;
     private int testCycleIndex = 1;
     private SessionType sessionType = SessionType.NORMAL;
+    private Integer reviewQuestionCount;
 
     private int totalQuestions;
     private int answeredQuestions;
@@ -143,6 +144,10 @@ public class GameSession {
     public SessionType getSessionType() { return sessionType; }
 
     public void setSessionType(SessionType sessionType) { this.sessionType = sessionType; }
+
+    public Integer getReviewQuestionCount() { return reviewQuestionCount; }
+
+    public void setReviewQuestionCount(Integer reviewQuestionCount) { this.reviewQuestionCount = reviewQuestionCount; }
 
     public int getTotalQuestions() {return totalQuestions;}
 

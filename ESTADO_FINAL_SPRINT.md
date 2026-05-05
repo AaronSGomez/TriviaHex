@@ -53,25 +53,30 @@ Nuevas queries:
 
 ---
 
-## 🟡 Listo pero Deferred (Para Mañana)
+## 🟡 Plan de Implementación: Notificación de Repaso (Próxima Mejora)
 
-### Notificación de Repaso
-**Status**: Plan preparado  
-**Cambios Necesarios**:
-1. Agregar campo `Integer reviewQuestionCount` a `GameSessionResponse`
-2. En `StartGameSessionService.startSession()`: contar failed questions si REVIEW
-3. Enviar en JSON al frontend
+### 1. Backend (Java/Spring Boot)
+**Objetivo**: Enviar información sobre el tipo de sesión y el número de preguntas falladas al iniciar.
 
-**Tiempo Estimado**: 15 minutos (backend) + testing
+*   **Modificar `GameSession` (Dominio)**: Agregar campo `Integer reviewQuestionCount`.
+*   **Actualizar `StartGameSessionService`**: 
+    *   Si la sesión es de tipo `REVIEW`, contar cuántas preguntas falladas existen para ese jugador y asignatura.
+*   **Actualizar `GameSessionResponse` (DTO)**:
+    *   Agregar campo `reviewQuestionCount` y `sessionType` (String).
 
-### Envío de Notificaciones FCM
-**Status**: Infraestructura lista (`FirebaseConfig` ya existe)  
-**Cambios Necesarios**:
-1. Crear `NotificationService` que llame a Firebase
-2. Agregar endpoint: `POST /api/notify/session/{sessionId}`
-3. Integrar con flujo de test (cuando termine REVIEW)
+### 2. Frontend (Flutter)
+**Objetivo**: Mostrar un popup informativo cuando se detecte una sesión de repaso.
 
-**Tiempo Estimado**: 30-45 minutos
+*   **Interceptar Respuesta**: En el callback de éxito al crear la sesión, verificar `sessionType`.
+*   **Diseño del Popup**:
+    *   Título: "¡Sesión de Repaso!"
+    *   Mensaje: "Vas a repasar las ${reviewQuestionCount} preguntas que fallaste anteriormente. El test se completará con nuevas hasta llegar a las 30 preguntas, ¡mucha suerte!"
+
+---
+
+## 🔵 Notificaciones Push (FCM)
+
+**Status**: Infraestructura lista (`FirebaseConfig` ya existe)
 
 ---
 
