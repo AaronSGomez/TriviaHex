@@ -61,9 +61,12 @@ levelup42.trivia/
 │   │   ├── GameSession.java
 │   │   ├── Player.java
 │   │   ├── Question.java
-│   │   └── SessionStatus.java
+│   │   ├── SessionStatus.java
+│   │   ├── SessionType.java
+│   │   └── Subject.java
 │   ├── port/
 │   │   ├── in/
+│   │   │   ├── auth/
 │   │   │   ├── gamesession/
 │   │   │   ├── player/
 │   │   │   └── question/
@@ -75,6 +78,7 @@ levelup42.trivia/
 │
 ├── application/
 │   └── service/
+│       ├── auth/
 │       ├── gamesession/
 │       ├── player/
 │       └── question/
@@ -82,6 +86,7 @@ levelup42.trivia/
 └── infraestructure/
     ├── adapter/
     │   ├── in/rest/
+    │   │   ├── AuthController.java
     │   │   ├── GameSessionController.java
     │   │   ├── PlayerController.java
     │   │   ├── QuestionController.java
@@ -92,7 +97,16 @@ levelup42.trivia/
     │       ├── PlayerJpaAdapter.java
     │       ├── QuestionJpaAdapter.java
     │       ├── entity/
+    │       │   ├── GameSessionEntity.java
+    │       │   ├── GameSessionQuestionEntity.java
+    │       │   ├── PlayerEntity.java
+    │       │   └── QuestionEntity.java
+    │       ├── mapper/
     │       └── repository/
+    │           ├── DataGameSessionQuestionRepository.java
+    │           ├── DataGameSessionRepository.java
+    │           ├── DataPlayerRepository.java
+    │           └── DataQuestionRepository.java
     │
     ├── config/
     │   ├── exception/
@@ -100,10 +114,12 @@ levelup42.trivia/
     │   ├── DebugExceptionHandler.java
     │   └── OpenApiConfig.java
     │
-    └── mapper/
-        ├── GameSessionMapper.java
-        ├── PlayerMapper.java
-        └── QuestionMapper.java
+    └── security/
+        ├── firebase/
+        ├── google/
+        ├── jwt/
+        ├── CustomUserDetails.java
+        └── SecurityConfig.java
 ```
 
 ---
@@ -120,7 +136,7 @@ classDiagram
         +String options (A-D)
         +String correctOption
         +String explanation
-        +String subject
+        +Subject subject
         +String topic
         +String difficulty
         +boolean active
@@ -129,18 +145,20 @@ classDiagram
         +UUID id
         +String name
         +String mail
+        +Role role
         +Instant createdAt
     }
     class GameSession {
         +UUID id
         +UUID playerId
-        +String subjet
+        +Subject subject
+        +int testCycleIndex
+        +SessionType sessionType
         +int totalQuestions
         +int answeredQuestions
         +int correctAnswers
+        +int skippedAnswers
         +int score
-        +Instant startedAt
-        +Instant finishedAt
         +SessionStatus status
         +getGrade() double
         +isPassed() boolean
@@ -150,9 +168,78 @@ classDiagram
         IN_PROGRESS
         FINISHED
     }
+    class SessionType {
+        <<enumeration>>
+        NORMAL
+        REVIEW
+    }
+    class Subject {
+        <<enumeration>>
+    }
     
     Player "1" --> "*" GameSession : plays
     GameSession "1" --> "1" SessionStatus : has
+    GameSession "1" --> "1" SessionType : has
+    GameSession "1" --> "1" Subject : belongs_to
+    Question "1" --> "1" Subject : belongs_to
+```
+
+---
+
+## 💾 Modelo de Base de Datos (Entities)
+
+La capa de persistencia se modela utilizando Spring Data JPA y Hibernate. A continuación se detalla el esquema relacional. La entidad `GAMESESSION_QUESTION` es crucial ya que actúa como tabla intermedia para saber exactamente qué preguntas ha respondido cada jugador en cada test, permitiendo implementar la "Bolsa de Fallos" y la evaluación.
+
+```mermaid
+erDiagram
+    PLAYER_ENTITY ||--o{ GAMESESSION_ENTITY : "plays"
+    GAMESESSION_ENTITY ||--o{ GAMESESSION_QUESTION : "contains"
+    QUESTION_ENTITY ||--o{ GAMESESSION_QUESTION : "is asked in"
+
+    PLAYER_ENTITY {
+        UUID id PK
+        varchar name
+        varchar mail
+        varchar password
+        varchar role
+        timestamp created_at
+    }
+    QUESTION_ENTITY {
+        bigint id PK
+        text statement
+        text option_a
+        text option_b
+        text option_c
+        text option_d
+        varchar correct_option
+        text explanation
+        varchar subject
+        varchar topic
+        varchar difficulty
+        boolean active
+    }
+    GAMESESSION_ENTITY {
+        UUID id PK
+        UUID player_id FK
+        varchar subject
+        int test_cycle_index
+        varchar session_type
+        int total_questions
+        int answered_questions
+        int correct_answers
+        int skipped_answers
+        int score
+        int status
+        timestamp started_at
+        timestamp finished_at
+    }
+    GAMESESSION_QUESTION {
+        bigint id PK
+        UUID session_id FK
+        bigint question_id FK
+        boolean correct
+        timestamp answered_at
+    }
 ```
 
 ---
