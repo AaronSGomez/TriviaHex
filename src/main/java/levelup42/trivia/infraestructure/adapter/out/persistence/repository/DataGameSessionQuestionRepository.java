@@ -14,7 +14,13 @@ public interface DataGameSessionQuestionRepository extends JpaRepository<GameSes
     @Query("SELECT gsq.questionId FROM GameSessionQuestionEntity gsq WHERE gsq.sessionId = :sessionId")
     List<Long> findAskedQuestionIdsBySessionId(@Param("sessionId") UUID sessionId);
 
-    @Query("SELECT gsq.questionId FROM GameSessionQuestionEntity gsq JOIN GameSessionEntity gs ON gs.id = gsq.sessionId WHERE gs.playerId = :playerId AND gs.subject = :subject AND gsq.correct = false ORDER BY gsq.answeredAt DESC")
+    @Query("SELECT gsq.questionId FROM GameSessionQuestionEntity gsq " +
+           "JOIN GameSessionEntity gs ON gs.id = gsq.sessionId " +
+           "WHERE gs.playerId = :playerId AND gs.subject = :subject AND gsq.correct = false " +
+           "AND gsq.answeredAt = (SELECT MAX(gsq2.answeredAt) FROM GameSessionQuestionEntity gsq2 " +
+           "JOIN GameSessionEntity gs2 ON gs2.id = gsq2.sessionId " +
+           "WHERE gs2.playerId = :playerId AND gs2.subject = :subject AND gsq2.questionId = gsq.questionId) " +
+           "ORDER BY gsq.answeredAt ASC")
     List<Long> findFailedQuestionIdsByPlayerAndSubject(@Param("playerId") UUID playerId, @Param("subject") String subject);
 
     @Query("SELECT DISTINCT gsq.questionId FROM GameSessionQuestionEntity gsq JOIN GameSessionEntity gs ON gs.id = gsq.sessionId WHERE gs.playerId = :playerId AND gs.subject = :subject AND gsq.correct = true AND gsq.answeredAt >= :since")

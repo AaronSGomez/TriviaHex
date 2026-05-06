@@ -80,8 +80,8 @@ La API expone los siguientes endpoints principales bajo `/api/v1`:
 
 ### Player (`/api/v1/player` & `/api/auth`)
 - **Autenticación (`/api/auth`) [PÚBLICO]**:
-  - `POST /register` - Inscribir nuevo jugador. Retorna Token JWT.
-  - `POST /login` - Iniciar sesión. Retorna Token JWT.
+  - `POST /google` - Autenticación principal mediante Google/Firebase. Recibe un Firebase ID Token, registra o actualiza al jugador y devuelve un Token JWT propio.
+  - *(Nota: Los endpoints `/register` y `/login` clásicos con contraseña han sido deshabilitados)*.
 - **Consultas (`/api/v1/players`) [Requiere Token]**:
   - `GET /` - Listar todos los jugadores (público o protegido, según convenga).
   - `GET /{id}` - Obtener perfil de un jugador específico.

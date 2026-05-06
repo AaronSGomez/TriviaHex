@@ -19,6 +19,7 @@ Proyecto backend robusto para un sistema de **Trivia Quiz**. Diseñado para la p
 3. [API REST](#-api-rest)
 4. [Implementación (Código Java)](#-implementación-código-java)
 5. [Despliegue (Docker & Nginx)](#-despliegue-docker--nginx)
+6. [Documentación Adjunta](#-documentación-adjunta)
 
 ---
 
@@ -171,8 +172,7 @@ Path base: `/api/v1`
 ### 👤 Jugadores y Autenticación (Auth / Players)
 | Método | Endpoint | Descripción | Seguridad |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/auth/register` | Registrar jugador e iniciar sesión | Público |
-| `POST` | `/auth/login` | Iniciar sesión y obtener JWT | Público |
+| `POST` | `/auth/google` | Autenticación con Firebase/Google y obtención de JWT propio | Público |
 | `GET` | `/players` | Listar todos los jugadores | Requiere Token |
 | `GET` | `/players/{id}` | Obtener perfil de un jugador | Requiere Token |
 
@@ -416,3 +416,16 @@ quiz-trivia-backend/
 │   └── nginx.conf
 └── docker-compose.yml
 ```
+
+---
+
+## 📚 Documentación Adjunta
+
+Para obtener detalles más profundos sobre la configuración, estrategias algorítmicas y el historial de desarrollo, puedes consultar los archivos disponibles en la carpeta `/documentacion`:
+
+*   **[01_guia_instalacion.md](./documentacion/01_guia_instalacion.md)**: Pasos exhaustivos para la configuración, compilación y despliegue del entorno en producción o local.
+*   **[02_desarrollo_api.md](./documentacion/02_desarrollo_api.md)**: Notas de diseño, decisiones arquitectónicas y consideraciones sobre el desarrollo de la API REST.
+*   **[03_autenticacion_firebase.md](./documentacion/03_autenticacion_firebase.md)**: Detalles sobre el flujo de seguridad y la integración de tokens JWT con Google Firebase.
+*   **[04_estrategia_pool_preguntas.md](./documentacion/04_estrategia_pool_preguntas.md)**: Explicación algorítmica sobre la selección de preguntas para tests estándar (incluye la ventana de exclusión de 96 horas).
+*   **[05_logica_tests_repaso.md](./documentacion/05_logica_tests_repaso.md)**: Mecánica, consulta JPQL y estrategia FIFO implementada para vaciar progresivamente el historial de fallos del jugador.
+*   **[historial_sprints/](./documentacion/historial_sprints/)**: Subcarpeta que contiene bitácoras de desarrollo, planes de implementación y cierres de sprints diarios.
