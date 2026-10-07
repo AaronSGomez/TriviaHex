@@ -51,14 +51,14 @@ La aplicación adopta el patrón de **Puertos y Adaptadores (Arquitectura Hexago
 
 ```mermaid
 graph TD
-    User((🌐 Cliente REST / PWA)) -->|HTTP:80| Nginx[Balanceador Nginx (Reverse Proxy)]
+    User["🌐 Cliente REST / PWA"] -->|HTTP:80| Nginx["Balanceador Nginx (Reverse Proxy)"]
     
-    subgraph Docker Cluster (Red Interna isolada)
-        Nginx -->|Upstream Round-Robin| B1[Backend Instance #1<br/>Spring Boot Container]
-        Nginx -->|Upstream Round-Robin| B2[Backend Instance #2<br/>Spring Boot Container]
-        Nginx -->|Upstream Round-Robin| B3[Backend Instance #3<br/>Spring Boot Container]
+    subgraph DockerCluster ["Docker Cluster (Red Interna aislada)"]
+        Nginx -->|Upstream Round-Robin| B1["Backend Instance #1<br/>Spring Boot Container"]
+        Nginx -->|Upstream Round-Robin| B2["Backend Instance #2<br/>Spring Boot Container"]
+        Nginx -->|Upstream Round-Robin| B3["Backend Instance #3<br/>Spring Boot Container"]
         
-        B1 --> DB[(PostgreSQL 16 Engine)]
+        B1 --> DB[("PostgreSQL 16 Engine")]
         B2 --> DB
         B3 --> DB
     end
