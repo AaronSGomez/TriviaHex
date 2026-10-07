@@ -574,3 +574,19 @@ Para profundizar en la arquitectura, algoritmos de selección y guías de despli
 * 🎲 **[04_estrategia_pool_preguntas.md](./documentacion/04_estrategia_pool_preguntas.md)**: Detalles algorítmicos del filtro temporal de 96 horas y distribución aleatoria.
 * 🔄 **[05_logica_tests_repaso.md](./documentacion/05_logica_tests_repaso.md)**: Mecánica de la Bolsa de Fallos y vaciado de colas mediante JPQL.
 * 📜 **[historial_sprints/](./documentacion/historial_sprints/)**: Bitácora de iteraciones, decisiones de diseño y seguimiento del desarrollo.
+
+---
+
+## 👨‍💻 Autor & Contacto
+
+**Aarón Gómez** — *Software Architect & Full Stack Engineer*
+
+* 🌐 **Sitio Web / Portfolio**: [aaronsgomez.es](https://aaronsgomez.es)
+* 🐙 **GitHub**: [github.com/AaronSGomez](https://github.com/AaronSGomez)
+* 💼 **LinkedIn**: [linkedin.com/in/aaronsgomez](https://www.linkedin.com/in/aaronsgomez)
+
+---
+
+## 📄 Licencia
+
+Este proyecto está distribuido bajo la licencia **MIT**. Consulta el archivo [LICENSE](LICENSE) para obtener más detalles.
