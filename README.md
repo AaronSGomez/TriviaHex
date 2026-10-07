@@ -579,7 +579,7 @@ Para profundizar en la arquitectura, algoritmos de selección y guías de despli
 
 ## 👨‍💻 Autor & Contacto
 
-**Aarón Gómez** — *Software Architect & Full Stack Engineer*
+**Aarón Gómez** — *DevSecOps | Desarrollo & Ciberseguridad*
 
 * 🌐 **Sitio Web / Portfolio**: [aaronsgomez.es](https://aaronsgomez.es)
 * 🐙 **GitHub**: [github.com/AaronSGomez](https://github.com/AaronSGomez)
