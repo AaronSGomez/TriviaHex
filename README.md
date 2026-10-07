@@ -1,132 +1,127 @@
-# 🧠 Trivia Quiz Backend - Full Architecture
+# 🧠 Trivia Quiz Backend — Architectural Showcase & Hexagonal Engine
 
-![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-green?logo=springboot)
-![Spring Security](https://img.shields.io/badge/Spring_Security-Auth-brightgreen?logo=springsecurity)
-![JWT](https://img.shields.io/badge/JWT-Token-black?logo=jsonwebtokens)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql)
-![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker)
-![Nginx](https://img.shields.io/badge/Nginx-Reverse_Proxy-009639?logo=nginx)
+![Java 21](https://img.shields.io/badge/Java_21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring Boot 3.x](https://img.shields.io/badge/Spring_Boot_3.x-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)
+![JWT Auth](https://img.shields.io/badge/JWT_Auth-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL_16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Docker Compose](https://img.shields.io/badge/Docker_Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Nginx Load Balancer](https://img.shields.io/badge/Nginx_Load_Balancer-009639?style=for-the-badge&logo=nginx&logoColor=white)
+![Raspberry Pi 5](https://img.shields.io/badge/Raspberry_Pi_5-C51A4A?style=for-the-badge&logo=raspberrypi&logoColor=white)
+![Hexagonal Architecture](https://img.shields.io/badge/Architecture-Hexagonal_%2F_Ports_%26_Adapters-blue?style=for-the-badge)
 
-Proyecto backend robusto para un sistema de **Trivia Quiz**. Diseñado para la preparación de exámenes y competición multijugador, optimizado para despliegue en **Raspberry Pi 5** mediante contenedores Docker con balanceo de carga.
+> **Resumen Ejecutivo**:  
+> **TriviaQuiz Backend** es una plataforma distribuida de alta disponibilidad orientada a la preparación de exámenes competitivos y trivias multijugador. Diseñada siguiendo los principios de la **Arquitectura Hexagonal (Puertos y Adaptadores)**, la plataforma garantiza desacoplamiento absoluto del framework en el núcleo de dominio, tolerancia a fallos mediante réplicas sin estado (*stateless*), balanceo de carga con Nginx y optimización de recursos para despliegue en entornos de bajo consumo como **Raspberry Pi 5**.
 
 ---
 
 ## 📋 Tabla de Contenidos
 
-1. [Arquitectura General](#-arquitectura-general)
-2. [Modelo de Dominio](#-modelo-de-dominio)
-3. [API REST](#-api-rest)
-4. [Implementación (Código Java)](#-implementación-código-java)
-5. [Despliegue (Docker & Nginx)](#-despliegue-docker--nginx)
-6. [Documentación Adjunta](#-documentación-adjunta)
+1. [✨ Características Principales & Algoritmos](#-características-principales--algoritmos)
+2. [🏗️ Arquitectura General & Sistema de Balanceo](#️-arquitectura-general--sistema-de-balanceo)
+3. [🌳 Árbol de Clases y Estructura de Paquetes](#-árbol-de-clases-y-estructura-de-paquetes)
+4. [📊 Modelo de Dominio y Diagrama de Clases](#-modelo-de-dominio-y-diagrama-de-clases)
+5. [💾 Modelo de Base de Datos (Entidades JPA)](#-modelo-de-base-de-datos-entidades-jpa)
+6. [🌐 Especificación de la API REST](#-especificación-de-la-api-rest)
+7. [💻 Código de la Arquitectura Hexagonal](#-código-de-la-arquitectura-hexagonal)
+8. [🐳 Despliegue de Infraestructura (Docker & Nginx)](#-despliegue-de-infraestructura-docker--nginx)
+9. [📚 Documentación Técnica Adjunta](#-documentación-técnica-adjunta)
 
 ---
 
-## 🏗️ Arquitectura General
+## ✨ Características Principales & Algoritmos
 
-El sistema se compone de un cluster de aplicaciones Spring Boot stateless, gobernadas por un balanceador de carga Nginx y respaldadas por una base de datos PostgreSQL.
+### 🎯 1. Algoritmo de Exclusión Temporal de Preguntas (Ventana 96h)
+Para evitar la memorización por repetición continua, el motor de generación de exámenes filtra dinámicamente el *pool* de preguntas excluyendo aquellas que el jugador haya respondido dentro de una ventana deslizante de **96 horas**, asegurando evaluaciones genuinas y variadas.
 
-### Componentes
-* **Backend:** Spring Boot (Stateless API) con **Arquitectura Hexagonal**.
-* **Seguridad:** Spring Security con **JWT** (JSON Web Tokens) y RBAC (Rol-Based Access Control).
-* **Base de Datos:** PostgreSQL.
-* **Proxy Inverso:** Nginx (Proxy inverso para cazar IPs y enmascarar puertos).
-* **Escalado:** 3 réplicas activas del backend.
+### 🔄 2. Modo Repaso Inteligente ("Bolsa de Fallos" FIFO)
+Sistema automatizado de refuerzo que recopila las preguntas falladas por cada jugador. Mediante consultas JPQL optimizadas y estructuras FIFO (*First In, First Out*), el jugador puede realizar *tests de repaso* dedicados que vacían progresivamente su historial de errores a medida que acierta las respuestas.
 
-### Diagrama de Infraestructura
+### 🔐 3. Seguridad Stateless & OAuth2 / JWT
+Integración híbrida de autenticación: soporta inicio de sesión social con **Google / Firebase Auth**, intercambiado transparentemente por tokens **JWT propietarios** firmados criptográficamente. Control de acceso granular basado en roles (RBAC: `ROLE_USER`, `ROLE_ADMIN`).
+
+### ⚡ 4. Balanceo de Carga & Despliegue en Hardware ARM64
+Clúster distribuido en Docker compuesto por 3 réplicas del backend Spring Boot balanceadas mediante Nginx. Optimizado para ofrecer latencias subsegundo sobre hardware **Raspberry Pi 5 (ARM64)** con PostgreSQL 16 ajustado para bajo consumo de memoria.
+
+---
+
+## 🏗️ Arquitectura General & Sistema de Balanceo
+
+La aplicación adopta el patrón de **Puertos y Adaptadores (Arquitectura Hexagonal)**. El núcleo del sistema (`domain`) no posee dependencias hacia Spring Boot, JPA, Jackson o bibliotecas de terceros, garantizando mantenibilidad, testabilidad unitaria aislada y portabilidad.
 
 ```mermaid
 graph TD
-    User((Internet / Dominio)) -->|HTTP:80| Nginx[Nginx Load Balancer]
+    User((🌐 Cliente REST / PWA)) -->|HTTP:80| Nginx[Balanceador Nginx (Reverse Proxy)]
     
-    subgraph Docker Network
-        Nginx --> B1[Backend #1]
-        Nginx --> B2[Backend #2]
-        Nginx --> B3[Backend #3]
+    subgraph Docker Cluster (Red Interna isolada)
+        Nginx -->|Upstream Round-Robin| B1[Backend Instance #1<br/>Spring Boot Container]
+        Nginx -->|Upstream Round-Robin| B2[Backend Instance #2<br/>Spring Boot Container]
+        Nginx -->|Upstream Round-Robin| B3[Backend Instance #3<br/>Spring Boot Container]
         
-        B1 --> DB[(PostgreSQL)]
+        B1 --> DB[(PostgreSQL 16 Engine)]
         B2 --> DB
         B3 --> DB
     end
 ```
 
-## 🌳 Árbol de Clases y Paquetes Principales
+---
+
+## 🌳 Árbol de Clases y Estructura de Paquetes
 
 ```text
 levelup42.trivia/
-├── TriviaApplication.java
-├── domain/
-│   ├── model/
+├── TriviaApplication.java                     # Punto de entrada Spring Boot
+├── domain/                                    # NÚCLEO DE DOMINIO (Puro Java, 0 dependencias)
+│   ├── model/                                 # Entidades de Dominio
 │   │   ├── GameSession.java
 │   │   ├── Player.java
 │   │   ├── Question.java
 │   │   ├── SessionStatus.java
 │   │   ├── SessionType.java
 │   │   └── Subject.java
-│   ├── port/
-│   │   ├── in/
+│   ├── port/                                  # Puertos (Interfaces de entrada y salida)
+│   │   ├── in/                                # Puertos de Entrada (Use Cases)
 │   │   │   ├── auth/
 │   │   │   ├── gamesession/
 │   │   │   ├── player/
 │   │   │   └── question/
-│   │   └── out/
+│   │   └── out/                               # Puertos de Salida (Repositories / SPI)
 │   │       ├── GameSessionRepositoryPort.java
 │   │       ├── PlayerRepositoryPort.java
 │   │       └── QuestionRepositoryPort.java
-│   └── exception/
+│   └── exception/                             # Excepciones de negocio
 │
-├── application/
-│   └── service/
+├── application/                               # CAPA DE APLICACIÓN (Casos de Uso / Servicios)
+│   └── service/                               # Servicios que implementan Puertos de Entrada
 │       ├── auth/
 │       ├── gamesession/
 │       ├── player/
 │       └── question/
 │
-└── infraestructure/
+└── infrastructure/                            # CAPA DE INFRAESTRUCTURA (Frameworks & Drivers)
     ├── adapter/
-    │   ├── in/rest/
+    │   ├── in/rest/                           # Adaptadores REST (Controladores Controllers & DTOs)
     │   │   ├── AuthController.java
     │   │   ├── GameSessionController.java
     │   │   ├── PlayerController.java
     │   │   ├── QuestionController.java
     │   │   └── dto/
-    │   │
-    │   └── out/persistence/
+    │   └── out/persistence/                   # Adaptadores de Persistencia (Spring Data JPA)
     │       ├── GameSessionJpaAdapter.java
     │       ├── PlayerJpaAdapter.java
     │       ├── QuestionJpaAdapter.java
-    │       ├── entity/
-    │       │   ├── GameSessionEntity.java
-    │       │   ├── GameSessionQuestionEntity.java
-    │       │   ├── PlayerEntity.java
-    │       │   └── QuestionEntity.java
-    │       ├── mapper/
-    │       └── repository/
-    │           ├── DataGameSessionQuestionRepository.java
-    │           ├── DataGameSessionRepository.java
-    │           ├── DataPlayerRepository.java
-    │           └── DataQuestionRepository.java
-    │
-    ├── config/
-    │   ├── exception/
-    │   ├── CorsConfig.java
-    │   ├── DebugExceptionHandler.java
-    │   └── OpenApiConfig.java
-    │
-    └── security/
-        ├── firebase/
-        ├── google/
-        ├── jwt/
-        ├── CustomUserDetails.java
-        └── SecurityConfig.java
+    │       ├── entity/                        # Entidades Relacionales JPA
+    │       ├── mapper/                        # Mapeadores Entity <-> Domain
+    │       └── repository/                    # Interfaces Spring Data Repositories
+    ├── config/                                # Configuración de Spring, OpenAPI / Swagger
+    └── security/                              # Filtros Spring Security, JWT y Firebase
 ```
 
 ---
 
-## 📊 Modelo de Dominio
+## 📊 Modelo de Dominio y Diagrama de Clases
 
-Estructura de datos central para gestionar preguntas, jugadores y el estado de cada sesión de juego.
+El modelo de dominio encapsula las reglas de puntuación, cálculo de notas con penalizaciones (resta 1/3 de valor por fallo) e indicadores de aprobación.
 
 ```mermaid
 classDiagram
@@ -177,24 +172,24 @@ classDiagram
         <<enumeration>>
     }
     
-    Player "1" --> "*" GameSession : plays
-    GameSession "1" --> "1" SessionStatus : has
-    GameSession "1" --> "1" SessionType : has
-    GameSession "1" --> "1" Subject : belongs_to
-    Question "1" --> "1" Subject : belongs_to
+    Player "1" --> "*" GameSession : juega
+    GameSession "1" --> "1" SessionStatus : posee
+    GameSession "1" --> "1" SessionType : posee
+    GameSession "1" --> "1" Subject : pertenece_a
+    Question "1" --> "1" Subject : pertenece_a
 ```
 
 ---
 
-## 💾 Modelo de Base de Datos (Entities)
+## 💾 Modelo de Base de Datos (Entidades JPA)
 
-La capa de persistencia se modela utilizando Spring Data JPA y Hibernate. A continuación se detalla el esquema relacional. La entidad `GAMESESSION_QUESTION` es crucial ya que actúa como tabla intermedia para saber exactamente qué preguntas ha respondido cada jugador en cada test, permitiendo implementar la "Bolsa de Fallos" y la evaluación.
+La persistencia relacional utiliza Spring Data JPA y Hibernate sobre PostgreSQL 16. La tabla intermedia `GAMESESSION_QUESTION` es fundamental ya que registra el historial de respuestas individuales por sesión para alimentar el motor de repaso.
 
 ```mermaid
 erDiagram
-    PLAYER_ENTITY ||--o{ GAMESESSION_ENTITY : "plays"
-    GAMESESSION_ENTITY ||--o{ GAMESESSION_QUESTION : "contains"
-    QUESTION_ENTITY ||--o{ GAMESESSION_QUESTION : "is asked in"
+    PLAYER_ENTITY ||--o{ GAMESESSION_ENTITY : "juega"
+    GAMESESSION_ENTITY ||--o{ GAMESESSION_QUESTION : "contiene"
+    QUESTION_ENTITY ||--o{ GAMESESSION_QUESTION : "es formulada en"
 
     PLAYER_ENTITY {
         UUID id PK
@@ -244,41 +239,41 @@ erDiagram
 
 ---
 
-## 🌐 API REST
+## 🌐 Especificación de la API REST
 
 Path base: `/api/v1`
 
-### 📝 Preguntas (Questions)
-| Método | Endpoint | Descripción | Seguridad |
+### 📝 1. Gestión de Preguntas (`/question`)
+| Método | Endpoint | Descripción | Requisito de Autenticación |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/question` | Listar todas las preguntas | Público |
-| `POST` | `/question` | Crear nueva pregunta | **ADMIN** |
-| `PUT` | `/question/{id}` | Actualizar pregunta | **ADMIN** |
-| `DELETE` | `/question/{id}` | Eliminar pregunta (Soft Delete) | **ADMIN** |
+| `GET` | `/question` | Listar todas las preguntas del sistema | Público |
+| `POST` | `/question` | Crear una nueva pregunta en el catálogo | **ADMIN** (`ROLE_ADMIN`) |
+| `PUT` | `/question/{id}` | Actualizar enunciado, opciones o solución | **ADMIN** (`ROLE_ADMIN`) |
+| `DELETE` | `/question/{id}` | Eliminar pregunta (Soft Delete) | **ADMIN** (`ROLE_ADMIN`) |
 
-### 👤 Jugadores y Autenticación (Auth / Players)
-| Método | Endpoint | Descripción | Seguridad |
+### 👤 2. Autenticación y Jugadores (`/auth`, `/players`)
+| Método | Endpoint | Descripción | Requisito de Autenticación |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/auth/google` | Autenticación con Firebase/Google y obtención de JWT propio | Público |
-| `GET` | `/players` | Listar todos los jugadores | Requiere Token |
-| `GET` | `/players/{id}` | Obtener perfil de un jugador | Requiere Token |
+| `POST` | `/auth/google` | Autenticar token Firebase/Google y emitir JWT propio | Público |
+| `GET` | `/players` | Obtener listado de jugadores registrados | Autenticado (`JWT`) |
+| `GET` | `/players/{id}` | Obtener perfil detallado de un jugador | Autenticado (`JWT`) |
 
-### 🎮 Sesiones de Juego (Game Flow)
-| Método | Endpoint | Descripción | Seguridad |
+### 🎮 3. Flujo de Sesión de Juego (`/session`)
+| Método | Endpoint | Descripción | Requisito de Autenticación |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/session` | Iniciar nueva sesión de juego | Requiere Token |
-| `GET` | `/session/{sessionId}` | Obtener detalles y estado (incluye nota) | Requiere Token |
-| `GET` | `/session/{sessionId}/next-question` | Obtener siguiente pregunta (oculta correcta) | Requiere Token |
-| `POST` | `/session/{sessionId}/answer` | Enviar una respuesta y evaluar acierto | Requiere Token |
-| `POST` | `/session/{sessionId}/finish` | Finalizar explícitamente una sesión en curso | Requiere Token |
-| `GET` | `/session/player/{playerId}` | Historial de sesiones jugadas por un jugador | Requiere Token |
-| `GET` | `/session/leaderboard` | Clasificación global de sesiones finalizadas | Requiere Token |
+| `POST` | `/session` | Iniciar una nueva sesión de examen/trivia | Autenticado (`JWT`) |
+| `GET` | `/session/{sessionId}` | Consultar estado, progreso y nota actual | Autenticado (`JWT`) |
+| `GET` | `/session/{sessionId}/next-question` | Obtener la siguiente pregunta (sin solución) | Autenticado (`JWT`) |
+| `POST` | `/session/{sessionId}/answer` | Enviar respuesta y procesar acierto/penalización | Autenticado (`JWT`) |
+| `POST` | `/session/{sessionId}/finish` | Finalizar explícitamente la sesión de juego | Autenticado (`JWT`) |
+| `GET` | `/session/player/{playerId}` | Obtener historial completo de sesiones del jugador | Autenticado (`JWT`) |
+| `GET` | `/session/leaderboard` | Obtener tabla global de clasificación (*Leaderboard*) | Autenticado (`JWT`) |
 
 ---
 
-## 💻 Implementación de Arquitectura Hexagonal (Código Java)
+## 💻 Código de la Arquitectura Hexagonal
 
-### 4.1. Main Application
+### 4.1. Clase Principal (Spring Boot Application)
 ```java
 package levelup42.trivia;
 
@@ -293,21 +288,40 @@ public class TriviaApplication {
 }
 ```
 
-### 4.2. Dominio y Casos de Uso (Núcleo)
+### 4.2. Capa de Dominio (Núcleo Puro sin Frameworks)
 
 <details>
-<summary><b>Ver código de Dominio</b></summary>
+<summary><b> Ver código de la Entidad de Dominio GameSession.java</b></summary>
 
-**GameSession.java** (Sin dependencias externas, pura lógica de negocio)
 ```java
 package levelup42.trivia.domain.model;
 
+import java.util.UUID;
+
+/**
+ * Entidad pura de dominio.
+ * No contiene anotaciones JPA (@Entity, @Table) ni dependencias de Spring.
+ */
 public class GameSession {
     private final UUID id;
     private final UUID playerId;
-    private final String subjet;
-    private int totalQuestions, answeredQuestions, correctAnswers, score;
+    private final Subject subject;
+    private int totalQuestions;
+    private int answeredQuestions;
+    private int correctAnswers;
+    private int score;
     private SessionStatus status;
+
+    public GameSession(UUID id, UUID playerId, Subject subject, int totalQuestions) {
+        this.id = id;
+        this.playerId = playerId;
+        this.subject = subject;
+        this.totalQuestions = totalQuestions;
+        this.answeredQuestions = 0;
+        this.correctAnswers = 0;
+        this.score = 0;
+        this.status = SessionStatus.IN_PROGRESS;
+    }
 
     public void registerCorrectAnswer(int points) {
         this.correctAnswers++;
@@ -319,23 +333,33 @@ public class GameSession {
         this.answeredQuestions++;
     }
 
+    /**
+     * Calcula la nota sobre 10 aplicando fórmula de penalización por fallos (resta 1/3 de pregunta acotado a [0.0, 10.0]).
+     */
     public double getGrade() {
         if (totalQuestions == 0) return 0.0;
         double questionValue = 10.0 / totalQuestions;
-        double penaltyValue = questionValue / 3.0; // Resta 1/3 por fallo
+        double penaltyValue = questionValue / 3.0;
         int incorrectAnswers = answeredQuestions - correctAnswers;
         double rawGrade = (correctAnswers * questionValue) - (incorrectAnswers * penaltyValue);
         return Math.max(0.0, Math.min(10.0, rawGrade));
     }
-    
+
     public boolean isPassed() {
         return getGrade() >= 5.0;
     }
-    // ...
+
+    // Getters y métodos de estado de dominio
+    public UUID getId() { return id; }
+    public UUID getPlayerId() { return playerId; }
+    public SessionStatus getStatus() { return status; }
 }
 ```
+</details>
 
-**GameSessionRepositoryPort.java** (Puerto de salida)
+<details>
+<summary><b> Ver código del Puerto de Salida GameSessionRepositoryPort.java</b></summary>
+
 ```java
 package levelup42.trivia.domain.port.out;
 
@@ -346,11 +370,13 @@ import java.util.UUID;
 public interface GameSessionRepositoryPort {
     GameSession save(GameSession gameSession);
     Optional<GameSession> findById(UUID id);
-    // ...
 }
 ```
+</details>
 
-**SubmitAnswerUseCase.java** (Puerto de entrada)
+<details>
+<summary><b> Ver código del Puerto de Entrada SubmitAnswerUseCase.java</b></summary>
+
 ```java
 package levelup42.trivia.domain.port.in.gamesession;
 
@@ -362,32 +388,50 @@ public interface SubmitAnswerUseCase {
 ```
 </details>
 
-### 4.3. Servicios (Capa de Aplicación)
+### 4.3. Capa de Aplicación (Servicios de Casos de Uso)
 
 <details>
-<summary><b>Ver SubmitAnswerService.java</b></summary>
+<summary><b> Ver código del Servicio SubmitAnswerService.java</b></summary>
 
 ```java
 package levelup42.trivia.application.service.gamesession;
 
+import levelup42.trivia.domain.model.GameSession;
+import levelup42.trivia.domain.model.Question;
 import levelup42.trivia.domain.port.in.gamesession.SubmitAnswerUseCase;
+import levelup42.trivia.domain.port.out.GameSessionRepositoryPort;
+import levelup42.trivia.domain.port.out.QuestionRepositoryPort;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class SubmitAnswerService implements SubmitAnswerUseCase {
+
     private final GameSessionRepositoryPort sessionRepository;
     private final QuestionRepositoryPort questionRepository;
-    // ... dependencies via constructor
-    
+
+    public SubmitAnswerService(GameSessionRepositoryPort sessionRepository, 
+                                QuestionRepositoryPort questionRepository) {
+        this.sessionRepository = sessionRepository;
+        this.questionRepository = questionRepository;
+    }
+
     @Override
-    public boolean execute(UUID sessionId, Long questionId, String option) {
-        GameSession session = sessionRepository.findById(sessionId).orElseThrow();
-        Question question = questionRepository.findById(questionId).orElseThrow();
+    public boolean execute(UUID sessionId, Long questionId, String selectedOption) {
+        GameSession session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Sesión no encontrada"));
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new IllegalArgumentException("Pregunta no encontrada"));
+
+        boolean isCorrect = question.getCorrectOption().equalsIgnoreCase(selectedOption);
         
-        boolean isCorrect = question.getCorrectOption().equals(option);
-        if (isCorrect) session.registerCorrectAnswer(10);
-        else session.registerIncorrectAnswer();
-        
+        if (isCorrect) {
+            session.registerCorrectAnswer(10);
+        } else {
+            session.registerIncorrectAnswer();
+        }
+
         sessionRepository.save(session);
         return isCorrect;
     }
@@ -395,30 +439,32 @@ public class SubmitAnswerService implements SubmitAnswerUseCase {
 ```
 </details>
 
-### 4.4. Infraestructura y Configuración (`config/`)
+### 4.4. Capa de Infraestructura & Seguridad (`infrastructure/`)
 
-El paquete `infraestructure/config/` y `infraestructure/security/` centralizan la configuración del framework y la seguridad de la aplicación:
+La capa `infrastructure/config/` y `infrastructure/security/` gestiona el framework Spring Boot y la protección perimetral:
 
-*   **`SecurityConfig.java`**: Configura Spring Security (stateless) activando los filtros JWT y securizando los endpoints en función a su Rol (`@PreAuthorize("hasRole('ADMIN')")`).
-*   **`JwtAuthenticationFilter.java`**: Filtro transversal JWT para interceptar cada petición REST y extraer/validar el token en la cabecera `Authorization`. Autoriza el contexto de ejecución del hilo concurrente.
-*   **`CorsConfig.java`**: Define las políticas de **CORS (Cross-Origin Resource Sharing)**, permitiendo especificar orígenes, métodos y cabeceras autorizados.
-*   **`OpenApiConfig.java`**: Integra y configura **Swagger / OpenAPI 3**, generando y sirviendo de forma automática la documentación interactiva y los esquemas del API REST al inyectar el token JWT global.
-*   **`GlobalExceptionHandler.java`**: Gestiona las excepciones de manera global, interceptando accesos denegados (403), no autorizados (401) o fallos de dominio (409) para que el servidor nunca se caiga y no exponga trazas a atacantes potenciales.
+* **`SecurityConfig.java`**: Configuración de Spring Security sin estado (*stateless*), deshabilitando sesiones de cookies, inyectando los filtros JWT y securizando rutas con anotaciones `@PreAuthorize("hasRole('ADMIN')")`.
+* **`JwtAuthenticationFilter.java`**: Interceptor transversal HTTP para validar la firma y caducidad del token en la cabecera `Authorization: Bearer <token>`.
+* **`CorsConfig.java`**: Control de políticas CORS (*Cross-Origin Resource Sharing*) autorizando accesos web y móviles específicos.
+* **`OpenApiConfig.java`**: Generación automática de especificación Swagger / OpenAPI 3 con soporte para inyección de token global.
+* **`GlobalExceptionHandler.java`**: Manejador global de excepciones para traducir fallos de dominio o seguridad en códigos HTTP estandarizados (401, 403, 404, 409) impidiendo la filtración de trazas internas.
 
 ---
 
-## 🐳 Despliegue (Docker & Nginx)
+## 🐳 Despliegue de Infraestructura (Docker & Nginx)
 
-Configuración para orquestar la base de datos, 3 réplicas del backend y el balanceador de carga.
+Configuración de contenedores en Docker Compose para levantar PostgreSQL 16, 3 réplicas sin estado del backend y el balanceador de carga Nginx.
 
-### docker-compose.yml
+### `docker-compose.yml`
 
 ```yaml
 version: "3.9"
 
 services:
   postgres:
-    image: postgres:16
+    image: postgres:16-alpine
+    container_name: quiz-postgres
+    restart: always
     environment:
       POSTGRES_DB: quizdb
       POSTGRES_USER: quizuser
@@ -428,37 +474,59 @@ services:
     networks:
       - quiz-net
 
-  # Replicas del Backend
+  # Instancia Backend #1
   quiz-backend-1:
     build: ./backend
+    container_name: quiz-backend-1
+    restart: always
     environment: &backend_env
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/quizdb
       SPRING_DATASOURCE_USERNAME: quizuser
       SPRING_DATASOURCE_PASSWORD: quizpass
     networks:
       - quiz-net
+    depends_on:
+      - postgres
 
+  # Instancia Backend #2
   quiz-backend-2:
     build: ./backend
+    container_name: quiz-backend-2
+    restart: always
     environment: *backend_env
     networks:
       - quiz-net
+    depends_on:
+      - postgres
 
+  # Instancia Backend #3
   quiz-backend-3:
     build: ./backend
+    container_name: quiz-backend-3
+    restart: always
     environment: *backend_env
     networks:
       - quiz-net
+    depends_on:
+      - postgres
 
+  # Balanceador de Carga Nginx
   nginx:
     build: ./nginx
+    container_name: quiz-nginx
+    restart: always
     ports:
       - "80:80"
     networks:
       - quiz-net
+    depends_on:
+      - quiz-backend-1
+      - quiz-backend-2
+      - quiz-backend-3
 
 networks:
   quiz-net:
+    driver: bridge
 
 volumes:
   quiz-data:
@@ -466,10 +534,12 @@ volumes:
 
 ### Configuración Nginx (`nginx.conf`)
 
-Define el grupo de servidores (upstream) para el balanceo de carga.
+Configuración del bloque `upstream` para distribución *Round-Robin* del tráfico hacia las 3 réplicas backend.
 
 ```nginx
-events {}
+events {
+    worker_connections 1024;
+}
 
 http {
     upstream quiz_backend {
@@ -485,34 +555,22 @@ http {
             proxy_pass http://quiz_backend;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
         }
     }
 }
 ```
 
-### Estructura de Archivos
-
-```text
-quiz-trivia-backend/
-├── backend/
-│   ├── Dockerfile
-│   ├── pom.xml
-│   └── src/main/java/com/example/quiz/...
-├── nginx/
-│   ├── Dockerfile
-│   └── nginx.conf
-└── docker-compose.yml
-```
-
 ---
 
-## 📚 Documentación Adjunta
+## 📚 Documentación Técnica Adjunta
 
-Para obtener detalles más profundos sobre la configuración, estrategias algorítmicas y el historial de desarrollo, puedes consultar los archivos disponibles en la carpeta `/documentacion`:
+Para profundizar en la arquitectura, algoritmos de selección y guías de despliegue, consulta la documentación disponible en la carpeta `/documentacion`:
 
-*   **[01_guia_instalacion.md](./documentacion/01_guia_instalacion.md)**: Pasos exhaustivos para la configuración, compilación y despliegue del entorno en producción o local.
-*   **[02_desarrollo_api.md](./documentacion/02_desarrollo_api.md)**: Notas de diseño, decisiones arquitectónicas y consideraciones sobre el desarrollo de la API REST.
-*   **[03_autenticacion_firebase.md](./documentacion/03_autenticacion_firebase.md)**: Detalles sobre el flujo de seguridad y la integración de tokens JWT con Google Firebase.
-*   **[04_estrategia_pool_preguntas.md](./documentacion/04_estrategia_pool_preguntas.md)**: Explicación algorítmica sobre la selección de preguntas para tests estándar (incluye la ventana de exclusión de 96 horas).
-*   **[05_logica_tests_repaso.md](./documentacion/05_logica_tests_repaso.md)**: Mecánica, consulta JPQL y estrategia FIFO implementada para vaciar progresivamente el historial de fallos del jugador.
-*   **[historial_sprints/](./documentacion/historial_sprints/)**: Subcarpeta que contiene bitácoras de desarrollo, planes de implementación y cierres de sprints diarios.
+* 📖 **[01_guia_instalacion.md](./documentacion/01_guia_instalacion.md)**: Guía paso a paso para compilación y puesta en marcha en entorno local o Raspberry Pi.
+* 🛠️ **[02_desarrollo_api.md](./documentacion/02_desarrollo_api.md)**: Especificación ampliada de DTOs, códigos de respuesta y diseño REST.
+* 🔑 **[03_autenticacion_firebase.md](./documentacion/03_autenticacion_firebase.md)**: Flujo de intercambio de tokens entre Firebase OAuth2 y JWT.
+* 🎲 **[04_estrategia_pool_preguntas.md](./documentacion/04_estrategia_pool_preguntas.md)**: Detalles algorítmicos del filtro temporal de 96 horas y distribución aleatoria.
+* 🔄 **[05_logica_tests_repaso.md](./documentacion/05_logica_tests_repaso.md)**: Mecánica de la Bolsa de Fallos y vaciado de colas mediante JPQL.
+* 📜 **[historial_sprints/](./documentacion/historial_sprints/)**: Bitácora de iteraciones, decisiones de diseño y seguimiento del desarrollo.
